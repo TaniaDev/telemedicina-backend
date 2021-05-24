@@ -1,0 +1,23 @@
+{
+  "name": "plataforma-telemedicina-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "Tania de Arruda",
+  "license": "ISC",
+  "description": "trabalho de graduação",
+  "repository": {
+    "type": "git",
+    "url": "plataforma-telemedicina-backend"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "pg": "^8.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
