@@ -1,5 +1,5 @@
 {
-  "name": "plataforma-telemedicina-backend",
+  "name": "telemedicina-backend",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -11,10 +11,11 @@
   "description": "trabalho de graduação",
   "repository": {
     "type": "git",
-    "url": "plataforma-telemedicina-backend"
+    "url": "telemedicina-backend"
   },
   "dependencies": {
     "express": "^4.17.1",
+    "knex": "^0.95.6",
     "pg": "^8.6.0"
   },
   "devDependencies": {
