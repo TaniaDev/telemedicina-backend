@@ -1,10 +1,23 @@
 const express = require('express');
-const port = process.env.PORT || 3000
-const userRouter = require('./usuario')
+const routes = require('./routes');
+const port = process.env.PORT || 3333
 
-const server = express();
-server.use(userRouter)
+const app = express();
 
-server.listen(port, () => {
-    console.log('API Online');
-});
+app.use(express.json());
+app.use(routes);
+
+// Not Found
+app.use((req, res, next) => {
+    const error = new Error('Not Found')
+    error.status = 404
+    next(error)
+})
+
+// Catch All
+app.use((error, req, res, next) => {
+    res.status(error.status || 500)
+    res.json({ error: error.message })
+})
+
+app.listen(port, () => console.log('API Online'));
