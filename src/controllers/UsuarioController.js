@@ -5,7 +5,7 @@ module.exports = {
         try {
             const { id, page = 1 } = req.query;
             const query = await con('usuario')
-            .limit(1)
+            .limit(5)
             .offset((page - 1) * 5)
 
             const countObj = con('usuario').count()
