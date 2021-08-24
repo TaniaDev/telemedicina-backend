@@ -1,43 +1,67 @@
-const knex = require('../database/database')
+const con = require('../database/database')
 
 module.exports = {
-    async index(req, res) {
-        const result = await knex('usuario')
-
-        return res.json(result);
-    },
-    async create(req, res, next) {
+    index: async (req, res) => {
         try {
-            const { nome } = req.body
-            await knex('usuario').insert({
-                nome
+            const { id, page = 1 } = req.query;
+            const query = await con('usuario')
+            .limit(1)
+            .offset((page - 1) * 5)
+
+            const countObj = con('usuario').count()
+
+        if (id) {
+            query
+            .where({ id })
+            .select('usuario.email')
+        }
+
+        const [count] = await countObj   
+        res.header('X-Total-Count', count["count"])
+
+        const results = await query
+    
+        return res.json(results);
+
+        } catch (error) {
+            next(error)
+        }   
+    },
+    create: async (req, res, next) => {
+        try {
+            const { email, senha } = req.body
+            await con('usuario').insert({
+                email, senha
             })
 
-            return res.status(201).send()
+            return res.status(201).json(usuario)
+
         } catch (error) {
             next(error)
         }
     },
-    async update(req, res, next) {
+    update: async (req, res, next) => {
         try {
-            const { nome } = req.body
+            const { email } = req.body
             const { id } = req.params
 
-            await knex('usuario')
-            .update({ nome })
+            await con('usuario')
+            .update({ email })
             .where({ id })
 
             return res.send()
+
         } catch (error) {
             next(error)
         }
     },
-    async delete(req, res, next) {
+    delete: async (req, res, next) => {
         try {
             const { id } = req.params
 
-            await knex('usuario')
+            await con('usuario')
             .where({ id })
+            .del()
 
             return res.send()
         } catch (error) {

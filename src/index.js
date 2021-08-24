@@ -1,9 +1,8 @@
 const express = require('express');
-const routes = require('./routes');
-const 
-port = process.env.PORT || 3333
+const routes = require('./routes/routes');
+const port = process.env.PORT || 3333
 
-const app = express();
+const app = express()
 
 app.use(express.json());
 app.use(routes);
