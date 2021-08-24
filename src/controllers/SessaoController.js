@@ -15,9 +15,7 @@ module.exports = {
             }
 
             return res.json({
-                id: usuario.id,
-                email
-                //token: 'sdjfaiuh48547adsjaoj54l5'
+                valid: 'Login realizado'
             })
         } catch (error) {
             next(error)
