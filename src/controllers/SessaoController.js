@@ -11,13 +11,13 @@ module.exports = {
             }
 
             if (senha !== usuario.senha) {
-                return res.status(403).json({ error: 'Senha'})
+                return res.status(403).json({ error: 'Senha inválida'})
             }
 
             return res.json({
                 id: usuario.id,
-                email,
-                token: 'sdjfaiuh48547adsjaoj54l5'
+                email
+                //token: 'sdjfaiuh48547adsjaoj54l5'
             })
         } catch (error) {
             next(error)
