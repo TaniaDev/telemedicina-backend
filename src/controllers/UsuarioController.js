@@ -1,7 +1,7 @@
 const con = require('../database/database')
 
 module.exports = {
-    index: async (req, res) => {
+    index: async (req, res, next) => {
         try {
             const { id, page = 1 } = req.query;
             const query = await con('usuario')
@@ -10,18 +10,18 @@ module.exports = {
 
             const countObj = con('usuario').count()
 
-        if (id) {
-            query
-            .where({ id })
-            .select('usuario.email')
-        }
+            if (id) {
+                query
+                .where({ id })
+                .select('usuario.email')
+            }
 
-        const [count] = await countObj   
-        res.header('X-Total-Count', count["count"])
+            const [count] = await countObj   
+            res.header('X-Total-Count', count["count"])
 
-        const results = await query
+            const results = await query
     
-        return res.json(results);
+            return res.json(results);
 
         } catch (error) {
             next(error)
