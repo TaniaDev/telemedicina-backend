@@ -33,7 +33,7 @@ module.exports = {
             await con('usuario').insert({
                 nome, dt_nascimento, genero, email, senha
             })
-
+            const usuario = { nome, dt_nascimento, genero, email }
             return res.status(201).json(usuario)
 
         } catch (error) {
@@ -42,11 +42,11 @@ module.exports = {
     },
     update: async (req, res, next) => {
         try {
-            const { email } = req.body
+            const { nome, dt_nascimento, genero, email } = req.body
             const { id } = req.params
 
             await con('usuario')
-            .update({ email })
+            .update({ nome, dt_nascimento, genero, email })
             .where({ id })
 
             return res.send()
