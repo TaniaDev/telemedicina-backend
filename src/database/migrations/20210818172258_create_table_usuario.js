@@ -7,8 +7,8 @@ exports.up = async function (knex) {
       table.text('email').unique().notNullable();
       table.text('senha').notNullable();
 
-      table.timestamp('created_at').defaultTo(knex.fn.now())
-      table.timestamp('updated_at').defaultTo(knex.fn.now())
+      table.timestamp('created_at').defaultTo(knex.fn.now()).nullable()
+      table.timestamp('updated_at').defaultTo(knex.fn.now()).nullable()
   })
 }
 exports.down = async function (knex) {
