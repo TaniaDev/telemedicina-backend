@@ -29,9 +29,9 @@ module.exports = {
     },
     create: async (req, res, next) => {
         try {
-            const { email, senha } = req.body
+            const { nome, dt_nascimento, genero, email, senha } = req.body
             await con('usuario').insert({
-                email, senha
+                nome, dt_nascimento, genero, email, senha
             })
 
             return res.status(201).json(usuario)
