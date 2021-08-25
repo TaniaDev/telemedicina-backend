@@ -19,11 +19,10 @@
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
     "knex": "^0.95.10",
+    "nodemon": "^2.0.12",
     "pg": "^8.7.1",
     "promisify": "0.0.3",
     "util-promisify": "^2.1.0"
   },
-  "devDependencies": {
-    "nodemon": "^2.0.11"
-  }
+  "devDependencies": {}
 }
