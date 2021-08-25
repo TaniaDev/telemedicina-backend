@@ -17,8 +17,11 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "jsonwebtoken": "^8.5.1",
     "knex": "^0.95.10",
-    "pg": "^8.7.1"
+    "pg": "^8.7.1",
+    "promisify": "0.0.3",
+    "util-promisify": "^2.1.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.11"
