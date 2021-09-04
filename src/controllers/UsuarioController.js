@@ -5,8 +5,9 @@ module.exports = {
         try {
             const { id, page = 1 } = req.query;
             const query = await con('usuario')
-            .limit(5)
-            .offset((page - 1) * 5)
+            .limit(10)
+            .offset((page - 1) * 10)
+            .orderBy('id')
 
             const countObj = con('usuario').count()
 
@@ -16,16 +17,37 @@ module.exports = {
                 .select('usuario.email')
             }
 
-            const [count] = await countObj   
+            const [count] = await countObj
             res.header('X-Total-Count', count["count"])
 
             const results = await query
-    
+
             return res.json(results);
 
         } catch (error) {
             next(error)
-        }   
+        }
+    },
+    read: async (req, res, next) => {
+        try {
+            const { id } = req.params;
+            if (!id) {
+                throw new Error('Id não identificado')
+            }
+            const [results] = await con('usuario')
+                .where({ id: id })
+                .select('usuario.nome',
+                        'usuario.dt_nascimento',
+                        'usuario.genero',
+                        'usuario.email',
+                        'usuario.senha')
+                .limit(1)
+
+            return res.json(results);
+
+        } catch (error) {
+            next(error)
+        }
     },
     create: async (req, res, next) => {
         try {
@@ -42,11 +64,11 @@ module.exports = {
     },
     update: async (req, res, next) => {
         try {
-            const { email } = req.body
+            const { data } = req.body
             const { id } = req.params
-
+            console.log(data)
             await con('usuario')
-            .update({ email })
+            .update(data)
             .where({ id })
 
             return res.send()
