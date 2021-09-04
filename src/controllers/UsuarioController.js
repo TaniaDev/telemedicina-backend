@@ -55,7 +55,7 @@ module.exports = {
             await con('usuario').insert({
                 nome, dt_nascimento, genero, email, senha
             })
-
+            const usuario = { nome, dt_nascimento, genero, email }
             return res.status(201).json(usuario)
 
         } catch (error) {
