@@ -6,8 +6,9 @@ const SessaoController = require('../controllers/SessaoController')
 routes
     //Usuário
     .get('/index', UsuarioController.index)
+    .get('/usuario/:id', UsuarioController.read)
     .post('/cadastro', UsuarioController.create)
-    .put('/usuario/:id', UsuarioController.update)
+    .put('/usuario/editar/:id', UsuarioController.update)
     .delete('/usuario/:id', UsuarioController.delete)
     //Sessao
     .post('/login', SessaoController.login)
