@@ -4,6 +4,8 @@ exports.up = async function (knex) {
       table.text('nome').notNullable();
       table.date('dt_nascimento').notNullable();
       table.text('genero').notNullable();
+      table.text('telefone').notNullable();
+      table.text('endereco').notNullable();
       table.text('email').unique().notNullable();
       table.text('senha').notNullable();
 
