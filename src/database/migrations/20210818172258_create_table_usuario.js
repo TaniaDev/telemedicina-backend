@@ -9,10 +9,11 @@ exports.up = async function (knex) {
       table.text('email').unique().notNullable();
       table.text('senha').notNullable();
 
-      table.timestamp('created_at').defaultTo(knex.fn.now()).nullable()
-      table.timestamp('updated_at').defaultTo(knex.fn.now()).nullable()
+      table.timestamp('created_at').defaultTo(knex.fn.now()).nullable();
+      table.timestamp('updated_at').defaultTo(knex.fn.now()).nullable();
   })
 }
+
 exports.down = async function (knex) {
   return await knex.schema.dropTable('usuario');
 }
