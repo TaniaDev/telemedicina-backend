@@ -7,7 +7,7 @@ exports.up = async function(knex) {
         table.text('alergia');
         table.text('doenca_cronica');
         table.text('vicio');
-        table.text('medico');
+        table.text('medicamento');
 
         table.timestamp('created_at').defaultTo(knex.fn.now()).nullable();
         table.timestamp('updated_at').defaultTo(knex.fn.now()).nullable();
