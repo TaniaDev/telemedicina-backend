@@ -7,7 +7,6 @@ module.exports = {
         try {
             const { nome, dt_nascimento, genero, email, senha } = req.body
             const emailExistente = await con('usuario').where({ email: email }).select('usuario.email')
-            console.log(emailExistente)
 
             if (emailExistente.length != 0) {
                 return res.status(403).json({ error: 'Usuário já existente com este e-mail'})
