@@ -3,8 +3,6 @@ exports.up = async function(knex) {
         table.increments('id').primary();
         table.integer('id_usuario').references('usuario.id').notNullable().onDelete('CASCADE');
 
-        table.timestamp('created_at').defaultTo(knex.fn.now()).nullable();
-        table.timestamp('updated_at').defaultTo(knex.fn.now()).nullable();
     })    
 };
 
