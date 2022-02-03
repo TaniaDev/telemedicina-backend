@@ -6,9 +6,9 @@
     "start": "nodemon src/server.js"
   },
   "keywords": [],
-  "author": "Tania de Arruda",
+  "author": "Tania de Arruda, William Rodrigues e Leonardo Duarte",
   "license": "ISC",
-  "description": "trabalho de graduação",
+  "description": "API para Plataforma de Telemedicina",
   "repository": {
     "type": "git",
     "url": "telemedicina-backend"
@@ -17,13 +17,12 @@
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.1",
     "cors": "^2.8.5",
-    "express": "^4.17.1",
+    "express": "^4.17.2",
     "jsonwebtoken": "^8.5.1",
-    "knex": "^0.95.10",
-    "nodemon": "^2.0.12",
+    "knex": "^1.0.1",
+    "nodemon": "^2.0.15",
     "pg": "^8.7.1",
     "promisify": "0.0.3",
-    "util-promisify": "^2.1.0"
-  },
-  "devDependencies": {}
+    "util-promisify": "^3.0.0"
+  }
 }
