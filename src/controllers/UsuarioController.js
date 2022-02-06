@@ -1,21 +1,29 @@
-const bcrypt = require('bcryptjs')
+const bcrypt = require('bcryptjs');
 
-const con = require('../database')
+const con = require('../database');
 
 module.exports = {
     create: async (req, res, next) => {
         try {
-            const { nome, dt_nascimento, genero, email, senha } = req.body
-            const emailExistente = await con('usuario').where({ email: email }).select('usuario.email')
+            const usuario = req.body
+
+            const emailExistente = await con('usuario').where({ email: usuario.email }).select('usuario.email')
+            console.log(emailExistente)
 
             if (emailExistente.length != 0) {
                 return res.status(403).json({ error: 'Usuário já existente com este e-mail'})
             } else {
-                const senhaHash = await bcrypt.hash(senha, 10);
+                const senhaHash = await bcrypt.hash(usuario.senha, 10);
 
-                const usuario = await con('usuario').insert({
-                    nome, dt_nascimento, genero, email, senha: senhaHash
+                await con('usuario').insert({
+                    nome: usuario.nome,
+                    dt_nascimento: usuario.dt_nascimento,
+                    genero: usuario.genero,
+                    email: usuario.email,
+                    senha: senhaHash
                 })
+
+                usuario.senha = undefined
 
                 return res.status(201).json(usuario)
             }

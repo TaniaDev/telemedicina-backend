@@ -23,7 +23,9 @@ module.exports = {
                 const accessToken = jwt.sign(JSON.stringify(usuario), generateToken({ id: usuario.id }))
 
                 if (match) {
-                    return res.json({ accessToken: accessToken })
+                    usuario.senha = undefined;
+
+                    return res.json({ usuario, accessToken: accessToken })
                 } else {
                     return res.json({ message: "Credenciais Inválidas" })
                 }
