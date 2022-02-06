@@ -1,4 +1,14 @@
-const con = require('../database/database')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+
+const authConfig = require('../config/auth');
+const con = require('../database')
+
+function generateToken(params = {}) {
+    return jwt.sign(params, authConfig.secret, {
+        expiresIn: 86400,
+    })
+}
 
 module.exports = {
     login: async (req, res, next) => {
@@ -8,18 +18,18 @@ module.exports = {
 
             if (!usuario) {
                 return res.status(403).json({ error: 'Usuário não encontrado' })
-            }
+            } else {
+                const match = await bcrypt.compare(senha, usuario.senha)
+                const accessToken = jwt.sign(JSON.stringify(usuario), generateToken({ id: usuario.id }))
 
-            if (senha !== usuario.senha) {
-                return res.status(403).json({ error: 'Senha inválida'})
+                if (match) {
+                    return res.json({ accessToken: accessToken })
+                } else {
+                    return res.json({ message: "Credenciais Inválidas" })
+                }
             }
-
-            return res.json({
-                valid: 'Login realizado'
-            })
         } catch (error) {
             next(error)
         }
-        
     }
 }
