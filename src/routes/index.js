@@ -2,6 +2,7 @@ const routes = require('express').Router()
 
 const UsuarioController = require('../controllers/UsuarioController')
 const SessaoController = require('../controllers/SessaoController')
+const ConsultaController = require('../controllers/ConsultaController')
 
 routes
     //Index
@@ -16,5 +17,4 @@ routes
     .delete('/usuario/:id', UsuarioController.delete)
     //Sessão
     .post('/login', SessaoController.login)
-
 module.exports = routes
