@@ -12,4 +12,3 @@ exports.up = async function(knex) {
 exports.down = async function(knex) {
     return await knex.raw(DROP_CONSTRAINTS)
 }
-
