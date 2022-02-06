@@ -17,6 +17,4 @@ routes
     .delete('/usuario/:id', UsuarioController.delete)
     //Sessão
     .post('/login', SessaoController.login)
-    //Consulta
-    .post('/consulta', ConsultaController.create)
 module.exports = routes

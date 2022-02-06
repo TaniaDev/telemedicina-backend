@@ -6,15 +6,11 @@ exports.seed = function(knex) {
       // Inserts seed entries
       return knex('documento_medico').insert([
         {
-          id_paciente: 1,
-          tipo: "Exame de sangue",
+          id_paciente: "1165c5e3-de8a-43ea-b1e7-f4dc0dcca20b",
           descricao: "Exame completo de sangue",
-          dt_hr_emissao: "2021-09-07T21:56:30",
-          dt_validade: "2021-09-07",
-          status: "8",
-          created_at: null, 
-          updated_at: null
+          adicionado_em: "2021-09-07T21:56:30",
+          atualizado_em: "2021-09-07T21:56:30"
         }
-      ]);
-    });
-};
+      ])
+    })
+}

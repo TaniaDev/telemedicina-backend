@@ -6,53 +6,34 @@ exports.seed = function(knex) {
       // Inserts seed entries
       return knex('endereco').insert([
         {
-          id_usuario: 4,
+          id_usuario: "1165c5e3-de8a-43ea-b1e7-f4dc0dcca20b",
           cep: "01245-888",
-          logradouro: "Avenida Vergueiro",
           numero: "8",
-          complemento: "...",
-          bairro: "Ipiranga",
           cidade: "São Paulo",
-          estado: "São Paulo",
-          created_at: null, 
-          updated_at: null 
+          estado: "São Paulo"
         },
         {
-          id_usuario: 1,
+          id_usuario: "a8d930ff-792b-45ad-9362-eb095f59fc58",
           cep: "74895-167",
-          logradouro: "Avenida Vergueiro",
           numero: "67",
           complemento: "Viela 2",
-          bairro: "Sacoma",
           cidade: "São Paulo",
-          estado: "São Paulo",
-          created_at: null, 
-          updated_at: null 
+          estado: "São Paulo"
         },
         {
-          id_usuario: 3,
+          id_usuario: "b2406c78-dfb5-4010-a441-553f1e69d794",
           cep: "74981-987",
-          logradouro: "Avenida Belo Horizonte",
           numero: "7",
-          complemento: "...",
-          bairro: "Riacho 12",
           cidade: "Guaxupe",
-          estado: "Minas Gerais",
-          created_at: null, 
-          updated_at: null 
+          estado: "Minas Gerais"
         },
         {
-          id_usuario: 2,
+          id_usuario: "5f8486da-561b-4454-8fda-6cd924ff58d8",
           cep: "79846214",
-          logradouro: "Rua Amazonas",
           numero: "79A",
-          complemento: "...",
-          bairro: "Amsterdã",
           cidade: "Rio Branco",
-          estado: "Acre",
-          created_at: null, 
-          updated_at: null 
+          estado: "Acre"
         }
-      ]);
-    });
-};
+      ])
+    })
+}

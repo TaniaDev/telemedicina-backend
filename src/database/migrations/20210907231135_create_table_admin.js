@@ -1,11 +1,12 @@
 exports.up = async function(knex) {
     return await knex.schema.createTable('admin', table => {
-        table.increments('id').primary();
-        table.integer('id_usuario').references('usuario.id').notNullable().onDelete('CASCADE');
+        table.uuid('id_usuario').primary().references('usuario.id').notNullable().onDelete('CASCADE')
 
+        table.timestamp('criado_em').defaultTo(knex.fn.now()).nullable()
+        table.timestamp('atualizado_em').defaultTo(knex.fn.now()).nullable()
     })    
-};
+}
 
 exports.down = async function (knex) {
     return await knex.schema.dropTable('admin');
-};
+}

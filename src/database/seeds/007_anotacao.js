@@ -6,13 +6,9 @@ exports.seed = function(knex) {
       // Inserts seed entries
       return knex('anotacao').insert([
         {
-          id_paciente: 2,
-          dt_hr_anotacao: "2021-09-07T21:56:30",
-          descricao: "bla bla bla",
-          anexo: "",
-          created_at: null, 
-          updated_at: null 
+          id_paciente: "1165c5e3-de8a-43ea-b1e7-f4dc0dcca20b",
+          descricao: "bla bla bla"
         },
-      ]);
-    });
-};
+      ])
+    })
+}
