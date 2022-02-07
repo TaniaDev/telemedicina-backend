@@ -20,12 +20,12 @@ module.exports = {
                 return res.status(403).json({ error: 'Usuário não encontrado' })
             } else {
                 const match = await bcrypt.compare(senha, usuario.senha)
-                const accessToken = jwt.sign(JSON.stringify(usuario), generateToken({ id: usuario.id }))
+                const accessToken = jwt.sign({id: usuario.id}, authConfig.secret, {expiresIn: 86400,})
 
                 if (match) {
                     usuario.senha = undefined;
 
-                    return res.json({ usuario, accessToken: accessToken })
+                    return res.json({ usuario, accessToken})
                 } else {
                     return res.json({ message: "Credenciais Inválidas" })
                 }
