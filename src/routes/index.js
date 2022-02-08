@@ -21,6 +21,8 @@ routes
     .get('/usuario/:id', UsuarioController.read)
     .put('/usuario/editar/:id', UsuarioController.update)
     .delete('/usuario/:id', UsuarioController.delete)
+    .post('/usuario/esqueceu_a_senha', UsuarioController.forgot_password)
+    .post('/usuario/redefinir_senha/:token', UsuarioController.reset_passowrd)
 
 
 module.exports = routes

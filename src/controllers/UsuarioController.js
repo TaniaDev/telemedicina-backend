@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-
+const crypto = require('crypto')
 const con = require('../database');
 
 module.exports = {
@@ -107,5 +107,52 @@ module.exports = {
         } catch (error) {
             next(error)
         }
-    }
+    },
+    forgot_password: async(req, res, next) => {
+        try{
+            const {email} = req.body
+            const usuario = await con('usuario').where({email})
+            
+            if(!usuario){
+                return res.status(400).send({error: 'Usuário não encontrado!'})
+            }
+
+            const token = crypto.randomBytes(20).toString('hex')
+            const now = new Date()
+            now.setHours(now.getHours() + 1)
+
+            await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
+
+            return res.status(200).send()
+        } catch (error) {
+            next(error)
+        }
+    },
+    reset_passowrd: async(req, res, next) => {
+        try{
+            const {token} = req.params
+            const {senha} = req.body
+
+            const [usuario] = await con('usuario').where({resetToken: token})
+
+            if(!usuario || token !== usuario.resetToken){
+                return res.status(400).send({error: 'Token inválido!'})
+            }
+
+            const now = new Date()
+
+            if(now > usuario.resetTokenExpires){
+                return res.status(400).send({error: 'Token expirou, gere um novo!'})
+            }
+
+            const senhaHash = await bcrypt.hash(senha, 10);
+
+            await con('usuario').update({senha: senhaHash}).where({id: usuario.id})
+            
+            return res.status(200).send()
+
+        } catch (error) {
+            next(error)
+        }
+    },
 }
