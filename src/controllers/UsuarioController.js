@@ -83,13 +83,14 @@ module.exports = {
         try {
             const { data } = req.body
             const { id } = req.params
-            console.log(data)
-            await con('usuario')
-            .update(data)
-            .where({ id })
+        
+            if(data.senha){
+                const senhaHash = await bcrypt.hash(data.senha, 10);
+                data.senha = senhaHash
+            }
 
+            await con('usuario').update(data).where({ id })
             return res.send()
-
         } catch (error) {
             next(error)
         }
