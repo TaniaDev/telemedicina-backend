@@ -5,7 +5,7 @@ const con = require('../database')
 module.exports = {
     create: async (req, res, next) => {
         try {
-            const { nome, dt_nascimento, genero, email, senha } = req.body
+            const { nome, dt_nascimento, genero, telefone, email, senha, tipo } = req.body
             const emailExistente = await con('usuario').where({ email: email }).select('usuario.email')
 
             if (emailExistente.length != 0) {
@@ -14,7 +14,7 @@ module.exports = {
                 const senhaHash = await bcrypt.hash(senha, 10);
 
                 const usuario = await con('usuario').insert({
-                    nome, dt_nascimento, genero, email, senha: senhaHash
+                    nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo
                 })
 
                 return res.status(201).json(usuario)
