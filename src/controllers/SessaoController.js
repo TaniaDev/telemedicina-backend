@@ -23,6 +23,10 @@ module.exports = {
                 const accessToken = jwt.sign(JSON.stringify(usuario), generateToken({ id: usuario.id }))
 
                 if (match) {
+                    if(usuario.desativado_em != null){
+                        await con('usuario').update({desativado_em: null}).where({email})
+                    }
+
                     if(usuario.tipo == "Paciente"){
                         const paciente = await con('usuario').join('paciente', 'usuario.id', '=', 'paciente.id_usuario').select('*')
                         return res.json({ accessToken, paciente })

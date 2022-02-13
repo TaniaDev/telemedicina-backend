@@ -98,5 +98,16 @@ module.exports = {
         } catch (error) {
             next(error)
         }
-    }
+    },
+    disable: async (req, res, next) => {
+        try{
+            const { id } = req.params
+            const now = new Date()
+            await con('usuario').update({desativado_em: now}).where({id})
+            return res.status(200).json()
+            console.log('Usuario desativado')
+        } catch (error) {
+            next(error)
+        }
+    },
 }

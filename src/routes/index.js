@@ -15,6 +15,7 @@ routes
     .get('/usuario/:id', UsuarioController.read)
     .put('/usuario/editar/:id', UsuarioController.update)
     .delete('/usuario/:id', UsuarioController.delete)
+    .put('/usuario/:id', UsuarioController.disable)
     //Sessão
     .post('/login', SessaoController.login)
 module.exports = routes
