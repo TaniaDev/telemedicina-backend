@@ -18,4 +18,7 @@ routes
     .put('/usuario/:id', UsuarioController.disable)
     //Sessão
     .post('/login', SessaoController.login)
+
+    //Consulta
+    .put('/consulta/cancelar', ConsultaController.cancel)
 module.exports = routes

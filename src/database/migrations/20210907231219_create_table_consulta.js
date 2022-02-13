@@ -9,7 +9,7 @@ exports.up = async function (knex) {
         table.timestamp('criado_em').defaultTo(knex.fn.now()).nullable()
         table.timestamp('atualizado_em').defaultTo(knex.fn.now()).nullable()
         table.timestamp('cancelado_em')
-        table.timestamp('cancelado_por')
+        table.uuid('cancelado_por')
     })
   }
   
