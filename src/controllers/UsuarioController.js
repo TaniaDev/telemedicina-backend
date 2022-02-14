@@ -1,6 +1,6 @@
-const bcrypt = require('bcryptjs')
-
-const con = require('../database')
+const bcrypt = require('bcryptjs');
+const crypto = require('crypto')
+const con = require('../database');
 
 module.exports = {
     create: async (req, res, next) => {
@@ -11,11 +11,13 @@ module.exports = {
             if (emailExistente.length != 0) {
                 return res.status(403).json({ error: 'Usuário já existente com este e-mail'})
             } else {
-                const senhaHash = await bcrypt.hash(senha, 10);
+                const senhaHash = await bcrypt.hash(usuario.senha, 10);
 
                 const usuario = await con('usuario').insert({
                     nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo
                 })
+
+                usuario.senha = undefined
 
                 return res.status(201).json(usuario)
             }
@@ -75,13 +77,14 @@ module.exports = {
         try {
             const { data } = req.body
             const { id } = req.params
-            console.log(data)
-            await con('usuario')
-            .update(data)
-            .where({ id })
+        
+            if(data.senha){
+                const senhaHash = await bcrypt.hash(data.senha, 10);
+                data.senha = senhaHash
+            }
 
+            await con('usuario').update(data).where({ id })
             return res.send()
-
         } catch (error) {
             next(error)
         }
@@ -106,6 +109,49 @@ module.exports = {
             await con('usuario').update({desativado_em: now}).where({id})
             return res.status(200).json()
             console.log('Usuario desativado')
+    forgot_password: async(req, res, next) => {
+        try{
+            const {email} = req.body
+            const usuario = await con('usuario').where({email})
+            
+            if(!usuario){
+                return res.status(400).send({error: 'Usuário não encontrado!'})
+            }
+
+            const token = crypto.randomBytes(20).toString('hex')
+            const now = new Date()
+            now.setHours(now.getHours() + 1)
+
+            await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
+
+            return res.status(200).send({token, email})
+        } catch (error) {
+            next(error)
+        }
+    },
+    reset_passowrd: async(req, res, next) => {
+        try{
+            const {token} = req.params
+            const {senha} = req.body
+
+            const [usuario] = await con('usuario').where({resetToken: token})
+
+            if(!usuario || token !== usuario.resetToken){
+                return res.status(400).send({error: 'Token inválido!'})
+            }
+
+            const now = new Date()
+
+            if(now > usuario.resetTokenExpires){
+                return res.status(400).send({error: 'Token expirou, gere um novo!'})
+            }
+
+            const senhaHash = await bcrypt.hash(senha, 10);
+
+            await con('usuario').update({senha: senhaHash}).where({id: usuario.id})
+            
+            return res.status(200).send()
+
         } catch (error) {
             next(error)
         }

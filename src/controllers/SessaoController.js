@@ -20,7 +20,7 @@ module.exports = {
                 return res.status(403).json({ error: 'Usuário não encontrado' })
             } else {
                 const match = await bcrypt.compare(senha, usuario.senha)
-                const accessToken = jwt.sign(JSON.stringify(usuario), generateToken({ id: usuario.id }))
+                const accessToken = jwt.sign({id: usuario.id}, authConfig.secret, {expiresIn: 86400,})
 
                 if (match) {
                     if(usuario.desativado_em != null){
