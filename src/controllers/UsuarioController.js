@@ -107,8 +107,11 @@ module.exports = {
             const { id } = req.params
             const now = new Date()
             await con('usuario').update({desativado_em: now}).where({id})
-            return res.status(200).json()
-            console.log('Usuario desativado')
+            return res.status(200).json()        
+        }catch (error) {
+            next(error)
+        }
+    },
     forgot_password: async(req, res, next) => {
         try{
             const {email} = req.body
