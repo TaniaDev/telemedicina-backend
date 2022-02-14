@@ -30,9 +30,7 @@ routes
 
 
     //Consulta
-    .put('/consulta/cancelar', ConsultaController.cancel)
-
-    //Consulta
     .post('/paciente/consulta/agendar', ConsultaController.create)
+    .put('/consulta/cancelar', ConsultaController.cancel)
     
 module.exports = routes
