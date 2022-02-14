@@ -28,10 +28,10 @@ module.exports = {
                     }
 
                     if(usuario.tipo == "Paciente"){
-                        const paciente = await con('usuario').join('paciente', 'usuario.id', '=', 'paciente.id_usuario').select('*')
+                        const paciente = await con('usuario').join('paciente', 'usuario.id', '=', 'paciente.id_usuario').select('*').where({id: usuario.id})
                         return res.json({ accessToken, paciente })
                     }else if(usuario.tipo == "Medico"){
-                        const medico = await con('usuario').join('medico', 'usuario.id', '=', 'medico.id_usuario').select('*')
+                        const medico = await con('usuario').join('medico', 'usuario.id', '=', 'medico.id_usuario').select('*').where({id: usuario.id})
                         return res.json({ accessToken, medico })
                     }else{
                         return res.status(400).json({ message: "Tipo de usuário inválido" })
