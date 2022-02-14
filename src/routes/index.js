@@ -31,4 +31,8 @@ routes
 
     //Consulta
     .put('/consulta/cancelar', ConsultaController.cancel)
+
+    //Consulta
+    .post('/paciente/consulta/agendar', ConsultaController.create)
+    
 module.exports = routes
