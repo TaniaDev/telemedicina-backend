@@ -18,7 +18,7 @@ module.exports = {
                 return res.status(400).json({error: 'Paciente não existe'})
             }
 
-            //Verificar se a data é maior do que data atual
+            //Verificar se a data é maior do que data atual - Comparando valores incompativeis
             const now = new Date()
             if(dt_hr_consulta > now){
                 return res.status(400).json({error: 'O horário da consulta deve ser maior que a hora atual'})

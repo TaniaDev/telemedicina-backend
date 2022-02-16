@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
+const jwt_decode = require('jwt-decode')
+
 const authConfig = require('../config/auth');
 const con = require('../database')
 
@@ -43,5 +45,10 @@ module.exports = {
         } catch (error) {
             next(error)
         }
+    },
+    decoded: async (req, res, next) => {
+        const { token} = req.body
+        const decode = jwt_decode(token)
+        return res.status(200).json({id: decode.id})
     }
 }

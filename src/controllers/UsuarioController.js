@@ -123,7 +123,7 @@ module.exports = {
 
             await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
 
-            return res.status(200).send({token, email})
+            return res.status(200).send()
         } catch (error) {
             next(error)
         }

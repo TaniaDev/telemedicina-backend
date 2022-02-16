@@ -6,31 +6,26 @@ const SessaoController = require('../controllers/SessaoController')
 const ConsultaController = require('../controllers/ConsultaController')
 
 routes
-    //Usuário
-    .post('/cadastrar', UsuarioController.create)
     //Sessão
-    .post('/login', SessaoController.login)
+    .post('/login', SessaoController.login) //ok
+    .post('/bla', SessaoController.decoded) //ok
 
-routes
-    //Index
+    //Index (Testando o middleware de autenticação)
     .get('/', auth, (req, res) => {
         res.status(200).send({ ok: true })
     })
+
     //Usuário
-
-    .get('/index', UsuarioController.index)
-    .get('/usuario/:id', UsuarioController.read)
-    .put('/usuario/editar/:id', UsuarioController.update)
-    .delete('/usuario/:id', UsuarioController.delete)
-    .put('/usuario/:id', UsuarioController.disable)
-    //Sessão
-    .post('/login', SessaoController.login)
-    .post('/usuario/esqueceu_a_senha', UsuarioController.forgot_password)
-    .post('/usuario/redefinir_senha/:token', UsuarioController.reset_passowrd)
-
+    .post('/cadastrar', UsuarioController.create)    //OK
+    .get('/index', auth, UsuarioController.index)   // - ok
+    .get('/usuario/:id', auth, UsuarioController.read)  // - ok
+    .put('/usuario/editar/:id', auth, UsuarioController.update) // ok
+    .put('/usuario/:id', auth, UsuarioController.disable)   //ok
+    .post('/usuario/esqueceu_a_senha', UsuarioController.forgot_password)   // - ok 
+    .post('/usuario/redefinir_senha/:token', UsuarioController.reset_passowrd)  // - ok
 
     //Consulta
-    .post('/paciente/consulta/agendar', ConsultaController.create)
-    .put('/consulta/cancelar', ConsultaController.cancel)
+    .post('/paciente/consulta/agendar', auth, ConsultaController.create)    // ok
+    .put('/consulta/cancelar', auth, ConsultaController.cancel)
     
 module.exports = routes
