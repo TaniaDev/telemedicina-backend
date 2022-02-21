@@ -76,7 +76,7 @@ npm start
 <br/><h3 id="tecnologias" align="center">🔧 Tecnologias</h3>
 
 As seguintes ferramentas foram usadas na construção do projeto:
-cors
+
 - [Node](https://nodejs.org/)
 - [Express](https://expressjs.com/)
 - [Nodemon](https://www.npmjs.com/package/nodemon)
