@@ -30,6 +30,7 @@ routes
     .get('/medico/especialidades', doctor, MedicoController.getAllSpecialties)
     .get('/medico/getDoctors', MedicoController.getDoctors)
     .post('/medico/registerSpecialty', doctor, MedicoController.registerSpecialty)
+    .get('/medico/disponibilidade', MedicoController.doctorAvailability)
 
     //Consulta
     .post('/paciente/consulta/agendar', auth, ConsultaController.create)   

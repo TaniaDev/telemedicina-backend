@@ -61,7 +61,13 @@ module.exports = {
     },
     doctorAvailability: async (req, res, next) => {
         try{
+            //Array contendo as horas (9,10,11,13,14,15,16,17,18)
 
+            //Almoço - subtrair o horario de inicio e horario final do almoço do array das horas
+
+            const {id_medico} = req.body
+            const results = await con('disponibilidade_medica').where({id_medico})
+            return res.status(200).json({results})
         }catch (error) {
             next(error)
         }
