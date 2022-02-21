@@ -1,8 +1,6 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const jwt_decode = require('jwt-decode')
-
 const authConfig = require('../config/auth');
 const con = require('../database')
 
@@ -29,15 +27,8 @@ module.exports = {
                         await con('usuario').update({desativado_em: null}).where({email})
                     }
 
-                    if(usuario.tipo == "Paciente"){
-                        const paciente = await con('usuario').join('paciente', 'usuario.id', '=', 'paciente.id_usuario').select('*').where({id: usuario.id})
-                        return res.json({ accessToken, paciente })
-                    }else if(usuario.tipo == "Medico"){
-                        const medico = await con('usuario').join('medico', 'usuario.id', '=', 'medico.id_usuario').select('*').where({id: usuario.id})
-                        return res.json({ accessToken, medico })
-                    }else{
-                        return res.status(400).json({ message: "Tipo de usuário inválido" })
-                    }
+                    const result = await con('usuario').where({id: usuario.id})
+                    return res.json({ accessToken, result })
                 } else {
                     return res.json({ message: "Credenciais Inválidas" })
                 }
@@ -46,9 +37,5 @@ module.exports = {
             next(error)
         }
     },
-    decoded: async (req, res, next) => {
-        const { token} = req.body
-        const decode = jwt_decode(token)
-        return res.status(200).json({id: decode.id})
-    }
+    
 }
