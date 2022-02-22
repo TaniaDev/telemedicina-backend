@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs')
+const jwt_decode = require('jwt-decode')
 const con = require('../database')
 
 module.exports = {
@@ -18,7 +19,7 @@ module.exports = {
                 return res.status(400).json({error: 'Paciente não existe'})
             }
 
-            //Verificar se a data é maior do que data atual
+            //Verificar se a data é maior do que data atual - Comparando valores incompativeis
             const now = new Date()
             if(dt_hr_consulta > now){
                 return res.status(400).json({error: 'O horário da consulta deve ser maior que a hora atual'})
@@ -75,6 +76,54 @@ module.exports = {
                 .where({id: id_consulta})
 
             return res.status(200).json()
+        }catch (error) {
+            next(error)
+        }
+    },
+    changeDate: async(req, res, next) => {
+        try{
+            const {id_consulta, new_date} = req.body
+
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const now = new Date()
+
+            if(new_date <= now){ //Melgorar a formação do now
+                return res.status(500).json({error: 'A nova data deve ser maior do que a data atual'})
+            }
+            
+            const result = await con('consulta').where({id: id_consulta})
+
+            if(result == ''){
+                return res.status(500).json({error: 'Consulta não existe!'})
+            }
+
+            if(result[0].id_medico != id && result[0].id_paciente != id){
+                return res.status(500).json({error: 'Somente o médico ou paciente podem alterar a data da consulta'})
+            }
+            
+            await con('consulta').update({dt_hr_consulta: new_date, atualizado_em: now}).where({id: id_consulta})
+
+            return res.status(200).json()
+        }catch (error) {
+            next(error)
+        }
+    },
+    getMyAppointments: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id })
+
+            if(appointments == ''){
+                return res.status(404).json({msg: 'Não há consulas cadastradas!'})
+            }
+
+            return res.status(200).json({appointments})
         }catch (error) {
             next(error)
         }

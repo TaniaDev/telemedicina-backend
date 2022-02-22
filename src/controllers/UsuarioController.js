@@ -6,20 +6,16 @@ module.exports = {
     create: async (req, res, next) => {
         try {
             const { nome, dt_nascimento, genero, telefone, email, senha, tipo } = req.body
-            const emailExistente = await con('usuario').where({ email: email }).select('usuario.email')
+            const emailExistente = await con('usuario').where({ email }).select('usuario.email')
 
             if (emailExistente.length != 0) {
                 return res.status(403).json({ error: 'Usuário já existente com este e-mail'})
             } else {
-                const senhaHash = await bcrypt.hash(usuario.senha, 10);
+                const senhaHash = await bcrypt.hash(senha, 10);
 
-                const usuario = await con('usuario').insert({
-                    nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo
-                })
+                await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo})
 
-                usuario.senha = undefined
-
-                return res.status(201).json(usuario)
+                return res.status(201).json({msg: 'Usuário cadastrado com sucesso!'})
             }
         } catch (error) {
             next(error)
@@ -127,7 +123,7 @@ module.exports = {
 
             await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
 
-            return res.status(200).send({token, email})
+            return res.status(200).send({token})
         } catch (error) {
             next(error)
         }
