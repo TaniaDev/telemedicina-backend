@@ -26,4 +26,4 @@ app.use((error, req, res, next) => {
     res.json({ error: error.message })
 })
 
-app.listen(port, () => console.log('API Online'))
+app.listen(port, () => console.log(`API Online on port ${port}`))
