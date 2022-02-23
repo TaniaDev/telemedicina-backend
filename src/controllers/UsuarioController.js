@@ -5,7 +5,7 @@ const con = require('../database');
 module.exports = {
     create: async (req, res, next) => {
         try {
-            const { nome, dt_nascimento, genero, telefone, email, senha, tipo } = req.body
+            const { nome, dt_nascimento, genero, telefone, email, senha, tipo, cep, numero, complemento, cidade, estado, peso, altura, alergia, doenca, vicio, medicamento, crm} = req.body
             const emailExistente = await con('usuario').where({ email }).select('usuario.email')
 
             if (emailExistente.length != 0) {
@@ -13,7 +13,14 @@ module.exports = {
             } else {
                 const senhaHash = await bcrypt.hash(senha, 10);
 
-                await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo})
+                const user = await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo}).returning('id')
+                await con('endereco').insert({id_usuario: user[0].id,  cep, numero, complemento, cidade, estado})
+
+                if(tipo === 'Paciente'){
+                    await con('paciente').insert({id_usuario: user[0].id, peso, altura, alergia, doenca_cronica: doenca, vicio, medicamento})
+                }else if(tipo === 'Medico'){
+                    await con('medico').insert({id_usuario: user[0].id, crm})
+                }
 
                 return res.status(201).json({msg: 'Usuário cadastrado com sucesso!'})
             }
