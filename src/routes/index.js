@@ -4,6 +4,7 @@ const UsuarioController = require('../controllers/UsuarioController')
 const SessaoController = require('../controllers/SessaoController')
 const ConsultaController = require('../controllers/ConsultaController')
 const MedicoController = require('../controllers/MedicoController')
+const PacienteController = require('../controllers/PacienteController')
 const auth = require('../middlewares/auth')
 const patient = require('../middlewares/patient')
 const doctor = require('../middlewares/doctor')
@@ -18,13 +19,20 @@ routes
     })
 
     //Usuário
+    .get('/usuario/getType', auth, UsuarioController.getType)
     .post('/cadastrar', UsuarioController.create)   
     .get('/index', auth, UsuarioController.index)   
-    .get('/usuario/:id', auth, UsuarioController.read)  
-    .put('/usuario/editar/:id', auth, UsuarioController.update)
-    .put('/usuario/:id', auth, UsuarioController.disable)  
+    .get('/usuario', auth, UsuarioController.read)  
+    .put('/usuario/editar', auth, UsuarioController.update)
+    .put('/usuario/disable', auth, UsuarioController.disable)  
     .post('/usuario/esqueceu_a_senha', UsuarioController.forgot_password)    
     .post('/usuario/redefinir_senha/:token', UsuarioController.reset_passowrd)  
+    .get('/usuario/endereco', auth, UsuarioController.getEndereco)  
+    .put('/usuario/endereco', auth, UsuarioController.updateEndereco)  
+
+    //Paciente
+    .get('/paciente', auth, patient, PacienteController.getPaciente)  
+    .put('/paciente', auth, patient, PacienteController.updatePaciente)  
 
     //Médico
     .get('/medico/especialidades', doctor, MedicoController.getAllSpecialties)
