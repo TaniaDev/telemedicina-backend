@@ -4,12 +4,6 @@ const jwt = require('jsonwebtoken')
 const authConfig = require('../config/auth');
 const con = require('../database')
 
-function generateToken(params = {}) {
-    return jwt.sign(params, authConfig.secret, {
-        expiresIn: 86400,
-    })
-}
-
 module.exports = {
     login: async (req, res, next) => {
         try {
@@ -28,9 +22,11 @@ module.exports = {
                     }
 
                     const result = await con('usuario').where({id: usuario.id})
-                    return res.json({ accessToken, result })
+                    
+                    return res.status(200).json({ accessToken, result })
+
                 } else {
-                    return res.json({ message: "Credenciais Inválidas" })
+                    return res.status(401).json({ message: "Credenciais Inválidas" })
                 }
             }
         } catch (error) {

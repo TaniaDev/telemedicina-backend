@@ -47,13 +47,13 @@ module.exports = {
 
             if(id_especialidade == null){
                 const results = await con('medico')
-                return res.status(200).json({results})
+                return res.status(200).json(results)
             }else{
                 const results = await con('medico_especialidade').select('*')
                     .join('medico', 'medico.id_usuario', '=', 'medico_especialidade.id_medico')
                     .join('especialidade', 'especialidade.id', '=', 'medico_especialidade.id_especialidade') 
                     .where({'medico_especialidade.id_especialidade': id_especialidade})
-                return res.status(200).json({results})
+                return res.status(200).json(results)
             }
         } catch (error) {
             next(error)

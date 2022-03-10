@@ -1,11 +1,12 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto')
+const jwt_decode = require('jwt-decode')
 const con = require('../database');
 
 module.exports = {
     create: async (req, res, next) => {
         try {
-            const { nome, dt_nascimento, genero, telefone, email, senha, tipo } = req.body
+            const { nome, dt_nascimento, genero, telefone, email, senha, tipo, cep, numero, complemento, cidade, estado, peso, altura, alergia, doenca, vicio, medicamento, crm} = req.body
             const emailExistente = await con('usuario').where({ email }).select('usuario.email')
 
             if (emailExistente.length != 0) {
@@ -13,7 +14,14 @@ module.exports = {
             } else {
                 const senhaHash = await bcrypt.hash(senha, 10);
 
-                await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo})
+                const user = await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo}).returning('id')
+                await con('endereco').insert({id_usuario: user[0].id,  cep, numero, complemento, cidade, estado})
+
+                if(tipo === 'Paciente'){
+                    await con('paciente').insert({id_usuario: user[0].id, peso, altura, alergia, doenca_cronica: doenca, vicio, medicamento})
+                }else if(tipo === 'Medico'){
+                    await con('medico').insert({id_usuario: user[0].id, crm})
+                }
 
                 return res.status(201).json({msg: 'Usuário cadastrado com sucesso!'})
             }
@@ -24,7 +32,7 @@ module.exports = {
     index: async (req, res, next) => {
         try {
             const { id, page = 1 } = req.query
-            const query = await con('usuario')
+            const query = await con('usuario').where({'desativado_em': null})
             .limit(10)
             .offset((page - 1) * 10)
             .orderBy('id')
@@ -50,15 +58,18 @@ module.exports = {
     },
     read: async (req, res, next) => {
         try {
-            const { id } = req.params
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
             if (!id) {
                 throw new Error('Id não identificado')
             }
             const [results] = await con('usuario')
                 .where({ id: id })
                 .select('usuario.nome',
-                        'usuario.dt_nascimento',
                         'usuario.genero',
+                        'usuario.telefone',
                         'usuario.email',
                         'usuario.senha')
                 .limit(1)
@@ -71,9 +82,11 @@ module.exports = {
     },
     update: async (req, res, next) => {
         try {
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+            
             const { data } = req.body
-            const { id } = req.params
-        
             if(data.senha){
                 const senhaHash = await bcrypt.hash(data.senha, 10);
                 data.senha = senhaHash
@@ -100,7 +113,10 @@ module.exports = {
     },
     disable: async (req, res, next) => {
         try{
-            const { id } = req.params
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
             const now = new Date()
             await con('usuario').update({desativado_em: now}).where({id})
             return res.status(200).json()        
@@ -123,7 +139,7 @@ module.exports = {
 
             await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
 
-            return res.status(200).send({token})
+            return res.status(200).send({token, email})
         } catch (error) {
             next(error)
         }
@@ -155,4 +171,43 @@ module.exports = {
             next(error)
         }
     },
+    getType: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+
+            const [tipo] = await con('usuario').select('tipo').where({ id: decode.id })
+
+            return res.status(200).json(tipo)
+        } catch (error) {
+            next(error)
+        }
+    },
+    getEndereco: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const [result] = await con('endereco').where({id_usuario: id})
+            
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    },
+    updateEndereco: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const {cep, numero, complemento, cidade, estado} = req.body
+
+            await con('endereco').update({cep, numero, complemento, cidade, estado}).where({id_usuario: id})
+            return res.status(200).json()
+        }catch (error) {
+            next(error)
+        }
+    }
 }
