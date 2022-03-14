@@ -21,7 +21,7 @@ module.exports = (req, res, next) => {
       return res.status(401).json({ error: 'Token malformatado' })
     }
     jwt.verify(token, authConfig.secret, function (err, decoded) {
-      console.log(err)
+      //console.log(err)
       if (err) {
         return res.status(403).send({ error: 'Acesso negado' })
       }

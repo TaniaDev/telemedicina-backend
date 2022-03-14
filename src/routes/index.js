@@ -3,11 +3,13 @@ const routes = require('express').Router()
 const UsuarioController = require('../controllers/UsuarioController')
 const SessaoController = require('../controllers/SessaoController')
 const ConsultaController = require('../controllers/ConsultaController')
+const AdminController = require('../controllers/AdminController')
 const MedicoController = require('../controllers/MedicoController')
 const PacienteController = require('../controllers/PacienteController')
 const auth = require('../middlewares/auth')
 const patient = require('../middlewares/patient')
 const doctor = require('../middlewares/doctor')
+const admin = require('../middlewares/admin')
 
 routes
     //Sessão
@@ -20,8 +22,7 @@ routes
 
     //Usuário
     .get('/usuario/getType', auth, UsuarioController.getType)
-    .post('/cadastrar', UsuarioController.create)   
-    .get('/index', auth, UsuarioController.index)   
+    .post('/cadastrar', UsuarioController.create)    
     .get('/usuario', auth, UsuarioController.read)  
     .put('/usuario/editar', auth, UsuarioController.update)
     .put('/usuario/disable', auth, UsuarioController.disable)  
@@ -39,6 +40,9 @@ routes
     .get('/medico/getDoctors', MedicoController.getDoctors)
     .post('/medico/registerSpecialty', doctor, MedicoController.registerSpecialty)
     .get('/medico/disponibilidade', MedicoController.doctorAvailability)
+
+    //Admin
+    .get('/admin', auth, admin, AdminController.index)
 
     //Consulta
     .post('/paciente/consulta/agendar', auth, ConsultaController.create)   
