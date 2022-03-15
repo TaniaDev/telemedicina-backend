@@ -59,6 +59,34 @@ module.exports = {
             next(error)
         }
     },
+    getDoctor: async (req, res, next) => {
+        try{
+            const {id_medico} = req.params
+            
+            if(id_medico == null){
+                return res.status(404).json()
+            }
+
+            const [result] = await con('usuario').select('*').join('medico', 'medico.id_usuario', '=', 'usuario.id').where({'id_usuario': id_medico})
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    },
+    getSpecialtie: async (req, res, next) => {
+        try{
+            const {id_especialidade} = req.params
+            
+            if(id_especialidade == null){
+                return res.status(404).json()
+            }
+
+            const [result] = await con('especialidade').where({'id': id_especialidade})
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    },
     doctorAvailability: async (req, res, next) => {
         try{
             //Array contendo as horas (9,10,11,13,14,15,16,17,18)
