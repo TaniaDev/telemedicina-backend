@@ -21,6 +21,7 @@
     "jsonwebtoken": "^8.5.1",
     "jwt-decode": "^3.1.2",
     "knex": "^1.0.1",
+    "nodemailer": "^6.7.2",
     "nodemon": "^2.0.15",
     "pg": "^8.7.1",
     "promisify": "0.0.3",

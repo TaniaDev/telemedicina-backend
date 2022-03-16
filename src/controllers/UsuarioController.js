@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto')
 const jwt_decode = require('jwt-decode')
-const con = require('../database');
+const con = require('../database')
 
 module.exports = {
     create: async (req, res, next) => {
@@ -99,9 +99,9 @@ module.exports = {
     },
     forgot_password: async(req, res, next) => {
         try{
-            const {email} = req.body
+            const { nome, email } = req.body
+
             const usuario = await con('usuario').where({email})
-            
             if(!usuario){
                 return res.status(400).send({error: 'Usuário não encontrado!'})
             }
@@ -112,22 +112,24 @@ module.exports = {
 
             await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
 
+            require('../modules/mailer')(email, nome, token)
+
             return res.status(200).send({token, email})
         } catch (error) {
             next(error)
         }
     },
     reset_passowrd: async(req, res, next) => {
-        try{
-            const {token} = req.params
-            const {senha} = req.body
-
+        try {
+            const { token } = req.params
+            const { email, senha } = req.body
+            console.log(token)
+            console.log(senha)
             const [usuario] = await con('usuario').where({resetToken: token})
 
             if(!usuario || token !== usuario.resetToken){
                 return res.status(400).send({error: 'Token inválido!'})
             }
-
             const now = new Date()
 
             if(now > usuario.resetTokenExpires){
@@ -140,6 +142,16 @@ module.exports = {
             
             return res.status(200).send()
 
+        } catch (error) {
+            next(error)
+        }
+    },
+    getEmail: async (req, res, next) => {
+        try{
+            const { token } = req.params
+            const [email] = await con('usuario').select('email','nome').where({ resetToken: token })
+
+            return res.status(200).json(email)
         } catch (error) {
             next(error)
         }

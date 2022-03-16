@@ -25,9 +25,11 @@ routes
     .post('/cadastrar', UsuarioController.create)    
     .get('/usuario', auth, UsuarioController.read)  
     .put('/usuario/editar', auth, UsuarioController.update)
-    .put('/usuario/disable', auth, UsuarioController.disable)  
+    .put('/usuario/disable', auth, UsuarioController.disable)
+    .delete('/usuario/:id', auth, UsuarioController.delete)  
     .post('/usuario/esqueceu_a_senha', UsuarioController.forgot_password)    
     .post('/usuario/redefinir_senha/:token', UsuarioController.reset_passowrd)  
+    .get('/usuario/getEmail/:token', UsuarioController.getEmail) 
     .get('/usuario/endereco', auth, UsuarioController.getEndereco)  
     .put('/usuario/endereco', auth, UsuarioController.updateEndereco)  
 
