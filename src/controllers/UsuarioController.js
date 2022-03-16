@@ -2,7 +2,6 @@ const bcrypt = require('bcryptjs');
 const crypto = require('crypto')
 const jwt_decode = require('jwt-decode')
 const con = require('../database')
-const mailer = require('../modules/mailer')
 
 module.exports = {
     create: async (req, res, next) => {
@@ -100,9 +99,9 @@ module.exports = {
     },
     forgot_password: async(req, res, next) => {
         try{
-            const {email} = req.body
+            const { nome, email } = req.body
+
             const usuario = await con('usuario').where({email})
-            
             if(!usuario){
                 return res.status(400).send({error: 'Usuário não encontrado!'})
             }
@@ -113,17 +112,8 @@ module.exports = {
 
             await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
 
-            mailer.sendMail({
-                to: email,
-                from: 'fatec.telemedicina@gmail.com',
-                template: 'auth/forgot_password',
-                context: { token }
-            }, (err) => {
-                if (err) {
-                    return res.status(400).send({ error: "Não foi possível enviar e-mail"})
-                }
-            })
-            
+            //require('../modules/mailer')(email, nome, token)
+
             return res.status(200).send({token, email})
         } catch (error) {
             next(error)
@@ -132,24 +122,25 @@ module.exports = {
     reset_passowrd: async(req, res, next) => {
         try{
             const { token } = req.params
-            const { email, senha } = req.body
-
+            const { senha } = req.body
+            console.log(1)
             const [usuario] = await con('usuario').where({resetToken: token})
 
             if(!usuario || token !== usuario.resetToken){
                 return res.status(400).send({error: 'Token inválido!'})
             }
-            
+            console.log(2)
             const now = new Date()
 
             if(now > usuario.resetTokenExpires){
                 return res.status(400).send({error: 'Token expirou, gere um novo!'})
             }
-
+            console.log(3)
             const senhaHash = await bcrypt.hash(senha, 10);
+            console.log(4)
 
             await con('usuario').update({senha: senhaHash}).where({id: usuario.id})
-            
+            console.log(5)           
             return res.status(200).send()
 
         } catch (error) {
