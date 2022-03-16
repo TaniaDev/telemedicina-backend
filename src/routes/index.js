@@ -38,8 +38,10 @@ routes
     .put('/paciente', auth, patient, PacienteController.updatePaciente)  
 
     //Médico
-    .get('/medico/especialidades', doctor, MedicoController.getAllSpecialties)
+    .get('/medico/especialidades', MedicoController.getAllSpecialties)
     .get('/medico/getDoctors', MedicoController.getDoctors)
+    .get('/medico/getDoctor/:id_medico', MedicoController.getDoctor)
+    .get('/medico/getSpecialtie/:id_especialidade', MedicoController.getSpecialtie)
     .post('/medico/registerSpecialty', doctor, MedicoController.registerSpecialty)
     .get('/medico/disponibilidade', MedicoController.doctorAvailability)
 
