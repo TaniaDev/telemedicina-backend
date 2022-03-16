@@ -29,6 +29,7 @@ routes
     .delete('/usuario/:id', auth, UsuarioController.delete)  
     .post('/usuario/esqueceu_a_senha', UsuarioController.forgot_password)    
     .post('/usuario/redefinir_senha/:token', UsuarioController.reset_passowrd)  
+    .get('/usuario/getEmail/:token', UsuarioController.getEmail) 
     .get('/usuario/endereco', auth, UsuarioController.getEndereco)  
     .put('/usuario/endereco', auth, UsuarioController.updateEndereco)  
 
