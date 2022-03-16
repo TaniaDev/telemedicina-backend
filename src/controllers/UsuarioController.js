@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto')
 const jwt_decode = require('jwt-decode')
-const con = require('../database');
+const con = require('../database')
+const mailer = require('../modules/mailer')
 
 module.exports = {
     create: async (req, res, next) => {
@@ -112,6 +113,17 @@ module.exports = {
 
             await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
 
+            mailer.sendMail({
+                to: email,
+                from: 'fatec.telemedicina@gmail.com',
+                template: 'auth/forgot_password',
+                context: { token }
+            }, (err) => {
+                if (err) {
+                    return res.status(400).send({ error: "Não foi possível enviar e-mail"})
+                }
+            })
+            
             return res.status(200).send({token, email})
         } catch (error) {
             next(error)
@@ -119,15 +131,15 @@ module.exports = {
     },
     reset_passowrd: async(req, res, next) => {
         try{
-            const {token} = req.params
-            const {senha} = req.body
+            const { token } = req.params
+            const { email, senha } = req.body
 
             const [usuario] = await con('usuario').where({resetToken: token})
 
             if(!usuario || token !== usuario.resetToken){
                 return res.status(400).send({error: 'Token inválido!'})
             }
-
+            
             const now = new Date()
 
             if(now > usuario.resetTokenExpires){
