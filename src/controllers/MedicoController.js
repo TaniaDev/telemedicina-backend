@@ -73,6 +73,20 @@ module.exports = {
             next(error)
         }
     },
+    getDoctorsBySpecialty: async (req, res, next) => {
+        try{
+            const {id_specialty} = req.params
+
+            if(id_specialty == null){
+                return res.status(500).json()
+            }
+
+            const result = await con('medico_especialidade').select('*').join('medico', 'medico.id_usuario', '=', 'medico_especialidade.id_medico').where({'id_especialidade': id_specialty})
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    },
     getSpecialtie: async (req, res, next) => {
         try{
             const {id_especialidade} = req.params
@@ -82,6 +96,20 @@ module.exports = {
             }
 
             const [result] = await con('especialidade').where({'id': id_especialidade})
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    },
+    getSpecialtieByDoctor: async (req, res, next) => {
+        try{
+            const {id_medico} = req.params
+
+            if(id_medico == null){
+                return res.status(500).json()
+            }
+
+            const result = await con('medico_especialidade').select('*').join('especialidade', 'especialidade.id', '=', 'medico_especialidade.id_especialidade').where({id_medico})
             return res.status(200).json(result)
         } catch (error) {
             next(error)
