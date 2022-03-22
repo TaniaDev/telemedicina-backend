@@ -5,7 +5,11 @@ const con = require('../database')
 module.exports = {
     create: async (req, res, next) => {
         try {
-            const {id_medico, id_paciente, status, dt_hr_consulta, id_especialidade} = req.body
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id_paciente = decode.id
+
+            const {id_medico, dt_hr_consulta, id_especialidade} = req.body
 
             //Verificar se o médico existe
             const medico = await con('medico').where({id_usuario: id_medico})
@@ -40,7 +44,7 @@ module.exports = {
 
             //Verificar se o médico já possui agendamento nesse dia e horário
             
-            const consulta = await con('consulta').insert({id_medico, id_paciente, status, dt_hr_consulta, id_especialidade})
+            const consulta = await con('consulta').insert({id_medico, id_paciente, status: "Agendado", dt_hr_consulta, id_especialidade})
             return res.status(201).json(consulta)
 
         } catch (error) {

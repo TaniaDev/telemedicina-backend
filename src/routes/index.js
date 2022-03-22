@@ -40,8 +40,10 @@ routes
     //Médico
     .get('/medico/especialidades', MedicoController.getAllSpecialties)
     .get('/medico/getDoctors', MedicoController.getDoctors)
+    .get('/medico/getDoctorsBySpecialty/:id_specialty', MedicoController.getDoctorsBySpecialty)
     .get('/medico/getDoctor/:id_medico', MedicoController.getDoctor)
     .get('/medico/getSpecialtie/:id_especialidade', MedicoController.getSpecialtie)
+    .get('/medico/getSpecialtieByDoctor/:id_medico', MedicoController.getSpecialtieByDoctor)
     .post('/medico/registerSpecialty', doctor, MedicoController.registerSpecialty)
     .get('/medico/disponibilidade', MedicoController.doctorAvailability)
 
