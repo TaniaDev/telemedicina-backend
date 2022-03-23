@@ -3,7 +3,7 @@ const jwt_decode = require('jwt-decode')
 const con = require('../database')
 
 module.exports = {
-    create: async (req, res, next) => {
+    agendar: async (req, res, next) => {
         try {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
@@ -144,5 +144,50 @@ module.exports = {
             next(error)
         }
     },
+    create: async (req, res, next) => {
+        try {
+            const { id_medico, dt_hr_consulta, id_especialidade } = req.body
+            const jaExistente = await con('consulta').where({ id_medico, dt_hr_consulta }).select('id')
+
+            if (jaExistente.length != 0) {
+                return res.status(403).json({ error: 'A data para este médico já está reservada'})
+            } else {
+                const consulta = await con('consulta').insert({ id_medico, dt_hr_consulta, id_especialidade, status: 'Livre' }).returning('id')
+
+                return res.status(201).json(consulta)
+            }
+        } catch (error) {
+            next(error)
+        }
+    },
+    delete: async (req, res, next) => {
+        try {
+            const { id } = req.params
+
+            await con('consulta')
+            .where({ id })
+            .del()
+
+            return res.send()
+        } catch (error) {
+            next(error)
+        }
+    },
+    getAppointment: async (req, res, next) => {
+        try{
+            const { id } = req.params
+
+            const appointment = await con('consulta').where({ id })
+
+            if(appointment == ''){
+                return res.status(404).json({msg: 'Não há consulta com este ID'})
+            }
+
+            return res.status(200).json(appointment)
+        }catch (error) {
+            next(error)
+        }
+    }
+
 
 }

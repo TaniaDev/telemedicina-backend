@@ -27,5 +27,20 @@ module.exports = {
         } catch (error) {
             next(error)
         }
+    },
+    getAppointments: async (req, res, next) => {
+        try {
+            const { id } = req.params
+            const query = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id })
+            .orderBy('dt_hr_consulta')
+
+            const results = await query
+
+            const others = await con('usuario').select('nome','tipo').where({ id })
+
+            return res.json({results, others})
+        }catch (error) {
+            next(error)
+        }
     }
 }
