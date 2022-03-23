@@ -35,7 +35,8 @@ routes
 
     //Paciente
     .get('/paciente', auth, patient, PacienteController.getPaciente)  
-    .put('/paciente', auth, patient, PacienteController.updatePaciente)  
+    .put('/paciente', auth, patient, PacienteController.updatePaciente)
+    .get('/paciente/getPaciente/:id_paciente', PacienteController.getPaciente) 
 
     //Médico
     .get('/medico/especialidades', MedicoController.getAllSpecialties)
@@ -49,11 +50,15 @@ routes
 
     //Admin
     .get('/admin', auth, admin, AdminController.index)
+    .get('/admin/consultas/:id', auth, admin, AdminController.getAppointments)
 
     //Consulta
-    .post('/paciente/consulta/agendar', auth, ConsultaController.create)   
+    .post('/paciente/consulta/agendar', auth, ConsultaController.agendar)    
     .put('/consulta/cancelar', auth, ConsultaController.cancel)
     .put('/consulta/changeDate', auth, ConsultaController.changeDate)
     .get('/consulta/getMyAppointments', auth, ConsultaController.getMyAppointments)
-    
+    .post('/admin/consultas/criar', auth, ConsultaController.create)
+    .delete('/admin/consultas/deletar/:id', auth, ConsultaController.delete)
+    .get('/consulta/:id', auth, ConsultaController.getAppointment)
+
 module.exports = routes

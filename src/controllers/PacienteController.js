@@ -28,6 +28,20 @@ module.exports = {
         }catch (error) {
             next(error)
         }
+    },
+    getPaciente: async (req, res, next) => {
+        try{
+            const {id_paciente} = req.params
+            
+            if(id_paciente == null){
+                return res.status(404).json()
+            }
+
+            const [result] = await con('usuario').select('*').join('paciente', 'paciente.id_usuario', '=', 'usuario.id').where({'id_usuario': id_paciente})
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
     }
 
 
