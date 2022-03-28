@@ -114,15 +114,17 @@ module.exports = {
                 return res.status(500).json({error: 'Consulta não existe!'})
             }
 
-            if(result[0].id_medico != id && result[0].id_paciente != id){
-                return res.status(500).json({error: 'Somente o médico ou paciente podem alterar a data da consulta'})
-            }
+            //if(result[0].id_medico != id && result[0].id_paciente != id){
+            //    return res.status(500).json({error: 'Somente o médico ou paciente podem alterar a data da consulta'})
+            //}
 
             //Verificar se o médico está disponivel no novo horário
             
             await con('consulta').update({dt_hr_consulta: new_date, atualizado_em: now}).where({id: id_consulta})
+            const dateUpdated = await con('consulta').where({id: id_consulta})
 
-            return res.status(200).json()
+
+            return res.status(200).json(dateUpdated)
         }catch (error) {
             next(error)
         }
@@ -147,15 +149,15 @@ module.exports = {
     create: async (req, res, next) => {
         try {
             const { id_medico, dt_hr_consulta, id_especialidade } = req.body
-            const jaExistente = await con('consulta').where({ id_medico, dt_hr_consulta }).select('id')
+            /*const jaExistente = await con('consulta').where({ id_medico, dt_hr_consulta }).select('id')
 
             if (jaExistente.length != 0) {
                 return res.status(403).json({ error: 'A data para este médico já está reservada'})
-            } else {
+            } else {}*/
                 const consulta = await con('consulta').insert({ id_medico, dt_hr_consulta, id_especialidade, status: 'Livre' }).returning('id')
 
                 return res.status(201).json(consulta)
-            }
+            
         } catch (error) {
             next(error)
         }
