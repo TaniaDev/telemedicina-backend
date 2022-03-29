@@ -83,7 +83,6 @@ module.exports = {
             await con('consulta')
                 .update({
                     status: "Cancelado", 
-                    dt_hr_consulta: null, 
                     atualizado_em: now, 
                     cancelado_em: now, 
                     cancelado_por: id_cancelador})
