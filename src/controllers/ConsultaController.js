@@ -57,9 +57,7 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id_cancelador = decode.id
 
-            const { id_consulta } = req.body
-
-
+            const { id_consulta } = req.params
 
             if(!id_consulta){
                 return res.status(400).json({error: 'Informe o id da consulta'})
@@ -75,9 +73,9 @@ module.exports = {
                 return res.status(400).json({error: 'Consulta não existe'})
             }
 
-            if((consulta[0].id_medico != id_cancelador) && (consulta[0].id_paciente != id_cancelador)){
+            /*if((consulta[0].id_medico != id_cancelador) && (consulta[0].id_paciente != id_cancelador)){
                 return res.status(400).json({error: 'Somente o paciente ou médico podem cancelar a consulta'})
-            }
+            }*/
             
             const now = new Date()
             await con('consulta')
