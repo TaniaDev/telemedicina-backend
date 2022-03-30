@@ -7,7 +7,9 @@ exports.up = async function (knex) {
         table.timestamp('dt_hr_consulta')
 
         table.timestamp('criado_em').defaultTo(knex.fn.now()).nullable()
+        table.uuid('criado_por')
         table.timestamp('atualizado_em').defaultTo(knex.fn.now()).nullable()
+        table.uuid('atualizado_por')
         table.timestamp('cancelado_em')
         table.uuid('cancelado_por')
     })

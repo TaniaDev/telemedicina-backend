@@ -53,7 +53,8 @@ routes
     .get('/admin/consultas/:id', auth, admin, AdminController.getAppointments)
 
     //Consulta
-    .post('/paciente/consulta/agendar', auth, ConsultaController.agendar)    
+    .put('/consulta/agendar/:id_consulta', auth, ConsultaController.agendar) 
+    .get('/consulta/getConsultasDisponiveis', auth, ConsultaController.getConsultasDisponiveis)   
     .put('/consulta/cancelar/:id_consulta', auth, ConsultaController.cancel)
     .put('/consulta/changeDate', auth, ConsultaController.changeDate)
     .get('/consulta/getMyAppointments', auth, ConsultaController.getMyAppointments)
