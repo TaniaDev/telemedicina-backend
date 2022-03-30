@@ -1,6 +1,8 @@
 const bcrypt = require('bcryptjs')
 const jwt_decode = require('jwt-decode')
 const con = require('../database')
+const {startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear} = require('date-fns')
+const current = new Date();
 
 module.exports = {
     agendar: async (req, res, next) => {
@@ -137,7 +139,75 @@ module.exports = {
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id })
 
             if(appointments == ''){
-                return res.status(404).json({msg: 'Não há consulas cadastradas!'})
+                return res.status(404).json({msg: 'Não há consultas!'})
+            }
+
+            return res.status(200).json(appointments)
+        }catch (error) {
+            next(error)
+        }
+    },
+    getTodayAppointments: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfDay(current)).andWhere('dt_hr_consulta', '<=', endOfDay(current))
+
+            if(appointments == ''){
+                return res.status(404).json({msg: 'Não há consultas hoje!'})
+            }
+
+            return res.status(200).json(appointments)
+        }catch (error) {
+            next(error)
+        }
+    },
+    getWeekAppointments: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfWeek(current)).andWhere('dt_hr_consulta', '<=', endOfWeek(current))
+
+            if(appointments == ''){
+                return res.status(404).json({msg: 'Não há consultas essa semana!'})
+            }
+
+            return res.status(200).json(appointments)
+        }catch (error) {
+            next(error)
+        }
+    },
+    getScheduledLateAppointments: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('status', 'Agendado')
+
+            if(appointments == ''){
+                return res.status(404).json({msg: 'Não há consultas agendadas!'})
+            }
+
+            return res.status(200).json(appointments)
+        }catch (error) {
+            next(error)
+        }
+    },
+    getCanceledLateAppointments: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('status', 'Cancelado')
+
+            if(appointments == ''){
+                return res.status(404).json({msg: 'Não há consultas Canceladas!'})
             }
 
             return res.status(200).json(appointments)
