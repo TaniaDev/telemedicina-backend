@@ -54,10 +54,10 @@ routes
 
     //Consulta
     .post('/paciente/consulta/agendar', auth, ConsultaController.agendar)    
-    .put('/consulta/cancelar', auth, ConsultaController.cancel)
+    .put('/consulta/cancelar/:id_consulta', auth, ConsultaController.cancel)
     .put('/consulta/changeDate', auth, ConsultaController.changeDate)
     .get('/consulta/getMyAppointments', auth, ConsultaController.getMyAppointments)
-    .post('/admin/consultas/criar', auth, ConsultaController.create)
+    .post('/consulta/criar', auth, ConsultaController.create)
     .delete('/admin/consultas/deletar/:id', auth, ConsultaController.delete)
     .get('/consulta/:id', auth, ConsultaController.getAppointment)
 
