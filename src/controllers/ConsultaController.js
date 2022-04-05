@@ -59,7 +59,7 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id_cancelador = decode.id
 
-            const { id_consulta } = req.body
+            const { id_consulta } = req.params
 
 
 
