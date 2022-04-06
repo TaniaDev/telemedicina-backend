@@ -1,4 +1,6 @@
 const jwt_decode = require('jwt-decode')
+const PacienteDAO = require('../dao/PacienteDAO')
+const Paciente = require('../model/Paciente')
 const con = require('../database')
 
 module.exports = {
@@ -8,7 +10,9 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
-            const [result] = await con('paciente').where({id_usuario: id})
+            dao = new PacienteDAO()
+
+            const [result] = dao.obter(new Paciente(id))
             
             return res.status(200).json(result)
         } catch (error) {
