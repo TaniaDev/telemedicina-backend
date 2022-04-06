@@ -83,11 +83,6 @@ module.exports = {
             const id_cancelador = decode.id
 
             const { id_consulta } = req.params
-<<<<<<< HEAD
-
-
-=======
->>>>>>> e68e953389778c26744cd1562948af872583e30d
 
             if(!id_consulta){
                 return res.status(400).json({error: 'Informe o id da consulta'})
