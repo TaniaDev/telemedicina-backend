@@ -55,6 +55,10 @@ routes
 
     //Consulta
     .put('/consulta/agendar/:id_consulta', auth, ConsultaController.agendar) 
+    .post('/agendarconsulta', auth, ConsultaController.agendarconsulta) 
+    .get('/horasdisponiveismedico/:id_medico/:data', auth, ConsultaController.horasdisponiveismedico) 
+    .post('/definirDisponibilidadeMedica', auth, doctor, ConsultaController.definirDisponibilidadeMedica) 
+    .get('/getDisponibilidadeMedica', auth, doctor, ConsultaController.getDisponibilidadeMedica) 
     .get('/consulta/getConsultasDisponiveis', auth, ConsultaController.getConsultasDisponiveis)   
     .put('/consulta/cancelar/:id_consulta', auth, ConsultaController.cancel)
     .put('/consulta/changeDate', auth, ConsultaController.changeDate)

@@ -5,6 +5,87 @@ const {startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, s
 const current = new Date();
 
 module.exports = {
+    agendarconsulta: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id_paciente = decode.id
+
+            const { id_medico, id_especialidade, data, hora } = req.body
+
+            const now = new Date()
+            const result = await con('consulta').insert({
+                                                            id_medico, 
+                                                            id_paciente, 
+                                                            status: 'Agendado',  
+                                                            criado_em: now, 
+                                                            id_especialidade, 
+                                                            data, 
+                                                            hora
+                                                        })
+
+            return res.status(200).json(result)
+        }catch (error) {
+            next(error)
+        }
+    },
+    horasdisponiveismedico: async(req, res, next) => {
+        try{
+            const {id_medico, data} = req.params
+
+            const consultas = await con('consulta').where({id_medico, data, status: 'Agendado'})
+            let horasDisponiveis = []
+            let horasOcupadas = []
+            let aux = ''
+
+            consultas.forEach(consulta => {
+                horasOcupadas.push(consulta.hora)
+            })
+
+            const result = await con('disponibilidade_medica').select('horas' ,'dia_semana').where({id_medico})
+
+            result.forEach(item => {
+                aux = `${item.horas}:00:00`
+                horasDisponiveis.push(aux)
+            })
+
+            horasDisponiveis = horasDisponiveis.filter(item => !horasOcupadas.includes(item))
+
+            var hrJson = {"horas": horasDisponiveis, "dia_semana": result[0].dia_semana}            
+
+            return res.status(200).json(hrJson)
+        }catch (error) {
+            next(error)
+        }
+    },
+    definirDisponibilidadeMedica: async(req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id_medico = decode.id
+
+            const {horas, dia_semana} = req.body
+
+            // horas - 1 insert p cada hora
+            // dia_semana - Transformar numa string separada por virgula (sem espaço)
+            await con('disponibilidade_medica').insert({ id_medico, horas, dia_semana })
+            return res.status(200).json()
+        }catch(error){
+            next(error)
+        }
+    },
+    getDisponibilidadeMedica: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id_medico = decode.id
+
+            const result = await con('disponibilidade_medica').select('horas', 'dia_semana').where({id_medico}).orderBy('horas')
+            return res.status(200).json(result)
+        }catch(error){
+            next(error)
+        }
+    },
     agendar: async (req, res, next) => {
         try {
             const authHeader = req.headers.authorization
@@ -37,7 +118,7 @@ module.exports = {
     },
     create: async (req, res, next) => {
         try {
-            const { id_medico, dt_hr_consulta, id_especialidade } = req.body
+            const { id_medico, data, hora, dt_hr_consulta, id_especialidade } = req.body
             
             //Verificar se o médico já possui agendamento nesse dia e horário
             /*const jaExistente = await con('consulta').where({ id_medico, dt_hr_consulta }).select('id')
@@ -159,10 +240,6 @@ module.exports = {
 
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id })
 
-            if(appointments == ''){
-                return res.status(404).json({msg: 'Não há consultas!'})
-            }
-
             return res.status(200).json(appointments)
         }catch (error) {
             next(error)
@@ -175,10 +252,6 @@ module.exports = {
             const id = decode.id
 
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfDay(current)).andWhere('dt_hr_consulta', '<=', endOfDay(current))
-
-            if(appointments == ''){
-                return res.status(404).json({msg: 'Não há consultas hoje!'})
-            }
 
             return res.status(200).json(appointments)
         }catch (error) {
@@ -193,10 +266,6 @@ module.exports = {
 
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfWeek(current)).andWhere('dt_hr_consulta', '<=', endOfWeek(current))
 
-            if(appointments == ''){
-                return res.status(404).json({msg: 'Não há consultas essa semana!'})
-            }
-
             return res.status(200).json(appointments)
         }catch (error) {
             next(error)
@@ -210,10 +279,6 @@ module.exports = {
 
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('status', 'Agendado')
 
-            if(appointments == ''){
-                return res.status(404).json({msg: 'Não há consultas agendadas!'})
-            }
-
             return res.status(200).json(appointments)
         }catch (error) {
             next(error)
@@ -226,10 +291,6 @@ module.exports = {
             const id = decode.id
 
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('status', 'Cancelado')
-
-            if(appointments == ''){
-                return res.status(404).json({msg: 'Não há consultas Canceladas!'})
-            }
 
             return res.status(200).json(appointments)
         }catch (error) {
