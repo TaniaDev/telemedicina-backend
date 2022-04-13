@@ -123,8 +123,7 @@ module.exports = {
         try {
             const { token } = req.params
             const { email, senha } = req.body
-            console.log(token)
-            console.log(senha)
+
             const [usuario] = await con('usuario').where({resetToken: token})
 
             if(!usuario || token !== usuario.resetToken){

@@ -320,10 +320,6 @@ module.exports = {
             }else{
                 appointments = await con('consulta').where({ id_medico: id }).andWhere('status', 'Cancelado')
             }
-
-            console.log('x------')
-            console.log(appointments)
-            console.log('------')
             
             return res.status(200).json(appointments)
         }catch (error) {
