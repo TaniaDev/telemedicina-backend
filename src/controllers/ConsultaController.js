@@ -11,7 +11,7 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id_paciente = decode.id
 
-            const { id_medico, id_especialidade, data, hora } = req.body
+            const { id_medico, id_especialidade, data, hora, dt_hr_consulta } = req.body
 
             const now = new Date()
             const result = await con('consulta').insert({
@@ -21,7 +21,8 @@ module.exports = {
                                                             criado_em: now, 
                                                             id_especialidade, 
                                                             data, 
-                                                            hora
+                                                            hora,
+                                                            dt_hr_consulta
                                                         })
 
             return res.status(200).json(result)
@@ -239,7 +240,7 @@ module.exports = {
             const id = decode.id
 
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id })
-
+            
             return res.status(200).json(appointments)
         }catch (error) {
             next(error)
@@ -251,7 +252,14 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
-            const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfDay(current)).andWhere('dt_hr_consulta', '<=', endOfDay(current))
+            let verify = await con('consulta').select('id_medico').where({id_medico: id})
+
+            let appointments
+            if(verify == ''){
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfDay(current)).andWhere('dt_hr_consulta', '<=', endOfDay(current))
+            }else{
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>=', startOfDay(current)).andWhere('dt_hr_consulta', '<=', endOfDay(current))
+            }
 
             return res.status(200).json(appointments)
         }catch (error) {
@@ -264,8 +272,15 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
-            const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfWeek(current)).andWhere('dt_hr_consulta', '<=', endOfWeek(current))
+            let verify = await con('consulta').select('id_medico').where({id_medico: id})
 
+            let appointments
+            if(verify == ''){
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfWeek(current)).andWhere('dt_hr_consulta', '<=', endOfWeek(current))
+            }else{
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>=', startOfWeek(current)).andWhere('dt_hr_consulta', '<=', endOfWeek(current))
+            }
+         
             return res.status(200).json(appointments)
         }catch (error) {
             next(error)
@@ -276,8 +291,15 @@ module.exports = {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
             const id = decode.id
+            
+            let verify = await con('consulta').select('id_medico').where({id_medico: id})
 
-            const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('status', 'Agendado')
+            let appointments
+            if(verify == ''){
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('status', 'Agendado')
+            }else{
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('status', 'Agendado')
+            }
 
             return res.status(200).json(appointments)
         }catch (error) {
@@ -290,8 +312,19 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
-            const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('status', 'Cancelado')
+            let verify = await con('consulta').select('id_medico').where({id_medico: id})
+            
+            let appointments
+            if(verify == ''){
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('status', 'Cancelado')
+            }else{
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('status', 'Cancelado')
+            }
 
+            console.log('x------')
+            console.log(appointments)
+            console.log('------')
+            
             return res.status(200).json(appointments)
         }catch (error) {
             next(error)
