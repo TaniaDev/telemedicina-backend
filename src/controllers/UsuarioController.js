@@ -3,33 +3,48 @@ const crypto = require('crypto')
 const jwt_decode = require('jwt-decode')
 const con = require('../database')
 
+const UsuarioDAO = require('../dao/UsuarioDAO')
+const Usuario = require('../model/Usuario')
+
+let usuarioDAO = new UsuarioDAO()
+const now = new Date()
+
 module.exports = {
-    create: async (req, res, next) => {
+    cadastrar: async (req, res, next) => {
         try {
-            const { nome, dt_nascimento, genero, telefone, email, senha, tipo, cep, numero, complemento, cidade, estado, peso, altura, alergia, doenca, vicio, medicamento, crm} = req.body
-            const emailExistente = await con('usuario').where({ email }).select('usuario.email')
+            const {
+                    nome,
+                    dt_nascimento,
+                    genero,
+                    telefone,
+                    email,
+                    senha,
+                    tipo,
+                } = req.body
 
-            if (emailExistente.length != 0) {
+            const usuarioExistente = await usuarioDAO.obterUmPeloEmail(email)
+
+            if (usuarioExistente) {
                 return res.status(403).json({ error: 'Usuário já existente com este e-mail'})
-            } else {
-                const senhaHash = await bcrypt.hash(senha, 10);
-
-                const user = await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo}).returning('id')
-                await con('endereco').insert({id_usuario: user[0].id,  cep, numero, complemento, cidade, estado})
-
-                if(tipo === 'Paciente'){
-                    await con('paciente').insert({id_usuario: user[0].id, peso, altura, alergia, doenca_cronica: doenca, vicio, medicamento})
-                }else if(tipo === 'Medico'){
-                    await con('medico').insert({id_usuario: user[0].id, crm})
-                }
-
-                return res.status(201).json({msg: 'Usuário cadastrado com sucesso!'})
             }
-        } catch (error) {
+            
+            const senhaHash = await bcrypt.hash(senha, 10)
+            const usuario = new Usuario({ nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo })
+            console.log(usuario)
+            const usuarioNovoId = await usuarioDAO.cadastrar(usuario)
+
+            if (usuarioDAO.tipo === 'Paciente'){
+                await con('paciente').insert({id_usuario: usuarioNovoId, peso, altura, alergia, doenca_cronica: doenca, vicio, medicamento})
+            } else if(usuarioDAO.tipo === 'Medico'){
+                await con('medico').insert({id_usuario: usuarioNovoId, crm})
+            }
+
+            return res.status(201).json({msg: 'Usuário cadastrado com sucesso!'})
+        } catch(error) {
             next(error)
         }
     },
-    read: async (req, res, next) => {
+    obter: async (req, res, next) => {
         try {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
@@ -38,62 +53,75 @@ module.exports = {
             if (!id) {
                 throw new Error('Id não identificado')
             }
-            const [results] = await con('usuario')
-                .where({ id: id })
-                .select('usuario.nome',
-                        'usuario.genero',
-                        'usuario.telefone',
-                        'usuario.email',
-                        'usuario.senha')
-                .limit(1)
+            const [results] = usuarioDAO.obter(new Usuario(id))
 
             return res.json(results)
-
-        } catch (error) {
+        } catch(error) {
             next(error)
         }
     },
-    update: async (req, res, next) => {
+    atualizar: async (req, res, next) => {
         try {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
             const id = decode.id
             
-            const { data } = req.body
-            if(data.senha){
-                const senhaHash = await bcrypt.hash(data.senha, 10);
-                data.senha = senhaHash
+            const {
+                nome,
+                dt_nascimento,
+                genero,
+                telefone,
+                email,
+                senha
+            } = req.body
+ 
+            if (senha) {
+                const senhaHash = await bcrypt.hash(data.senha, 10)
+                senha = senhaHash
             }
 
-            await con('usuario').update(data).where({ id })
-            return res.send()
-        } catch (error) {
+            const usuarioExistente = await usuarioDAO.obterUmPeloId(id)
+
+            if (!usuarioExistente) {
+                return res.status(404).json({ error: 'Usuário não existente.'})
+            }
+
+            await usuarioDAO.atualizar({
+                                        id,   
+                                        nome,
+                                        dt_nascimento,
+                                        genero,
+                                        telefone,
+                                        email,
+                                        senha
+                                    })
+
+            return res.status(200).json({msg: 'Usuário atualizado com sucesso!'})
+        } catch(error) {
             next(error)
         }
     },
-    delete: async (req, res, next) => {
+    deletar: async (req, res, next) => {
         try {
             const { id } = req.params
 
-            await con('usuario')
-            .where({ id })
-            .del()
+            usuarioDAO.deletar(id)
 
             return res.send()
-        } catch (error) {
+        } catch(error) {
             next(error)
         }
     },
-    disable: async (req, res, next) => {
+    desativar: async (req, res, next) => {
         try{
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
-            const now = new Date()
-            await con('usuario').update({desativado_em: now}).where({id})
+            dao.desativar(id)
+
             return res.status(200).json()        
-        }catch (error) {
+        } catch(error) {
             next(error)
         }
     },
