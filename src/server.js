@@ -1,7 +1,8 @@
+require('dotenv/config')
+
 const bodyParser = require('body-parser')
 const cors = require('cors')
 const express = require('express')
-
 const routes = require('./routes')
 
 const app = express()
@@ -12,6 +13,11 @@ app.use(bodyParser.urlencoded({ extended: false }))
 app.use(cors())
 app.use(express.json())
 app.use(routes)
+
+//Index (Testando o middleware de autenticação)
+.get('/', (req, res) => {
+    res.status(200).send({ ok: true })
+})
 
 // Not Found
 app.use((req, res, next) => {

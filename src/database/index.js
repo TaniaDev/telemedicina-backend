@@ -1,6 +1,6 @@
 const knex = require('knex')
 
-const knexfile = require('../../knexfile')
+const knexfile = require('../config/knexfile')
 
 const con = knex(knexfile.development)
 
