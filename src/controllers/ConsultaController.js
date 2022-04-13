@@ -11,7 +11,7 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id_paciente = decode.id
 
-            const { id_medico, id_especialidade, data, hora, dt_hr_consulta } = req.body
+            const { id_medico, id_especialidade, data, hora, dt_hr_consulta, url_consulta } = req.body
 
             const now = new Date()
             const result = await con('consulta').insert({
@@ -22,7 +22,8 @@ module.exports = {
                                                             id_especialidade, 
                                                             data, 
                                                             hora,
-                                                            dt_hr_consulta
+                                                            dt_hr_consulta,
+                                                            url_consulta
                                                         })
 
             return res.status(200).json(result)
