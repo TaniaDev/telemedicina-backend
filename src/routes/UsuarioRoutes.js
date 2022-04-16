@@ -5,7 +5,7 @@ const UsuarioController = require('../controllers/UsuarioController')
 UsuarioRoutes
     .post('/cadastrar', UsuarioController.cadastrar)    
     .get('/obter/:id', auth, UsuarioController.obter)  
-    .put('/editar', auth, UsuarioController.atualizar)
+    .put('/atualizar', auth, UsuarioController.atualizar)
     .put('/desativar', auth, UsuarioController.desativar)
     .delete('/deletar/:id', auth, UsuarioController.deletar)  
 

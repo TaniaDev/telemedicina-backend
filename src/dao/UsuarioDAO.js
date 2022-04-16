@@ -70,7 +70,7 @@ module.exports = class UsuarioDAO {
                         .where({ id })
     }
 
-    async deletar(usuario) {
+    async deletar(id) {
         return await con('usuario')
                         .where({ id })
                         .del()
@@ -78,7 +78,7 @@ module.exports = class UsuarioDAO {
 
     async desativar(usuario) {
         return await con('usuario')
-                        .update({desativado_em: now})
+                        .update({ desativado_em: now })
                         .where({ id })
     }
     
