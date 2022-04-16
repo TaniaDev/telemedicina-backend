@@ -96,7 +96,7 @@ module.exports = {
                                         senha
                                     })
 
-            return res.status(200).json({msg: 'Usuário atualizado com sucesso!'})
+            return res.status(200).json({ msg: 'Usuário atualizado com sucesso!' })
         } catch(error) {
             next(error)
         }
@@ -104,10 +104,16 @@ module.exports = {
     deletar: async (req, res, next) => {
         try {
             const { id } = req.params
+            
+            const usuarioExistente = await usuarioDAO.obterUmPeloId(id)
 
-            usuarioDAO.deletar(id)
+            if (!usuarioExistente) {
+                return res.status(404).json({ error: 'Usuário não existente.' })
+            }
 
-            return res.send()
+            await usuarioDAO.deletar(id)
+
+            return res.status(200).json({ msg: 'Usuário deletado com sucesso!' })
         } catch(error) {
             next(error)
         }
@@ -116,9 +122,9 @@ module.exports = {
         try{
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const id = decode.id 
 
-            dao.desativar(id)
+            await usuarioDAO.desativar(id)
 
             return res.status(200).json()        
         } catch(error) {
