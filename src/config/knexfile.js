@@ -1,11 +1,14 @@
+require('dotenv/config')
+
 module.exports = {
   development: {
-    client: 'pg',
+    client: process.env.DB_CLIENT,
     connection: {
-      host : 'localhost',
-      database: 'telemedicina',
-      user: 'postgres',
-      password: 'postgres'
+      host : process.env.DB_HOST,
+      database: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASS,
+      storage:'./__tests__/database.pg'
     },
     pool: {
       min: 2,
