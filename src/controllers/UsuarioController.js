@@ -7,7 +7,6 @@ const UsuarioDAO = require('../dao/UsuarioDAO')
 const Usuario = require('../model/Usuario')
 
 let usuarioDAO = new UsuarioDAO()
-const now = new Date()
 
 module.exports = {
     cadastrar: async (req, res, next) => {
@@ -83,7 +82,7 @@ module.exports = {
             const usuarioExistente = await usuarioDAO.obterUmPeloId(id)
 
             if (!usuarioExistente) {
-                return res.status(404).json({ error: 'Usuário não existente.'})
+                return res.status(404).json({ error: 'Usuário não existente.' })
             }
 
             await usuarioDAO.atualizar({
@@ -113,20 +112,26 @@ module.exports = {
 
             await usuarioDAO.deletar(id)
 
-            return res.status(200).json({ msg: 'Usuário deletado com sucesso!' })
+            return res.status(200).json({ msg: 'Usuário deletado com sucesso.' })
         } catch(error) {
             next(error)
         }
     },
     desativar: async (req, res, next) => {
-        try{
+        try {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
-            const id = decode.id 
+            const id = decode.id
+
+            const usuarioExistente = await usuarioDAO.obterUmPeloId(id)
+
+            if (!usuarioExistente) {
+                return res.status(404).json({ error: 'Usuário não existente.' })
+            }
 
             await usuarioDAO.desativar(id)
 
-            return res.status(200).json()        
+            return res.status(200).json({ msg: 'Usuário desativado com sucesso.' })        
         } catch(error) {
             next(error)
         }

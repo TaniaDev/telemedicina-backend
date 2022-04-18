@@ -1,4 +1,5 @@
 const con = require('../database')
+const getCurrentTime = require('../utils/getCurrentTime')
 
 module.exports = class UsuarioDAO {
     async cadastrar(usuario) {
@@ -76,10 +77,10 @@ module.exports = class UsuarioDAO {
                         .del()
     }
 
-    async desativar(usuario) {
+    async desativar(id) {
         return await con('usuario')
-                        .update({ desativado_em: now })
                         .where({ id })
+                        .update({ desativado_em: getCurrentTime() })
     }
     
 }
