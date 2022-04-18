@@ -9,11 +9,8 @@ UsuarioRoutes
     .put('/desativar', auth, UsuarioController.desativar)
     .delete('/deletar/:id', auth, UsuarioController.deletar)  
 
-    .get('/getType', auth, UsuarioController.getType)
-    .post('/esqueceu_a_senha', UsuarioController.forgot_password)    
-    .post('/redefinir_senha/:token', UsuarioController.reset_passowrd)  
-    .get('/getEmail/:token', UsuarioController.getEmail) 
-    .get('/endereco', auth, UsuarioController.getEndereco)  
+    .post('/esqueceu_a_senha', UsuarioController.forgot_password)
+    .post('/redefinir_senha/:token', UsuarioController.reset_passowrd)
     .put('/endereco', auth, UsuarioController.updateEndereco)
 
 module.exports = UsuarioRoutes

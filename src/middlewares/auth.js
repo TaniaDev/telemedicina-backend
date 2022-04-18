@@ -25,7 +25,12 @@ module.exports = (req, res, next) => {
       if (err) {
         return res.status(403).send({ error: 'Acesso negado' })
       }
-      req.decoded = decoded
+      const usuario = {
+        id: decoded.id,
+        nome: decoded.nome,
+        tipo: decoded.tipo
+      }
+      req.usuario = usuario
       next()
   })
 }

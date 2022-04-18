@@ -180,47 +180,12 @@ module.exports = {
             next(error)
         }
     },
-    getEmail: async (req, res, next) => {
-        try{
-            const { token } = req.params
-            const [email] = await con('usuario').select('email','nome').where({ resetToken: token })
-
-            return res.status(200).json(email)
-        } catch (error) {
-            next(error)
-        }
-    },
     getUserByEmail: async (req, res, next) => {
         try{
             const {email} = req.params
             const [result] = await con('usuario').where({email})
             return res.status(200).json(result)
         }catch(error){  
-            next(error)
-        }
-    },
-    getType: async (req, res, next) => {
-        try{
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-
-            const [tipo] = await con('usuario').select('tipo').where({ id: decode.id })
-
-            return res.status(200).json(tipo)
-        } catch (error) {
-            next(error)
-        }
-    },
-    getEndereco: async (req, res, next) => {
-        try{
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
-
-            const [result] = await con('endereco').where({id_usuario: id})
-            
-            return res.status(200).json(result)
-        } catch (error) {
             next(error)
         }
     },
