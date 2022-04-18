@@ -71,4 +71,9 @@ routes
     .delete('/admin/consultas/deletar/:id', auth, ConsultaController.delete)
     .get('/consulta/:id', auth, ConsultaController.getAppointment)
 
+    // .get('/prontuario', auth, PacienteController.getProntuario) 
+    // .post('/prontuario', auth, PacienteController.createProntuario) 
+    .get('/prontuario', PacienteController.getProntuario) 
+    .post('/prontuario', PacienteController.createProntuario) 
+
 module.exports = routes
