@@ -71,6 +71,14 @@ module.exports = class UsuarioDAO {
                         .where({ id })
     }
 
+    async atualizarSenhaPeloEmail(senha, email) {
+        return await con('usuario')
+                        .update({
+                            senha
+                        })
+                        .where({ email })
+    }
+
     async deletar(id) {
         return await con('usuario')
                         .where({ id })

@@ -8,9 +8,9 @@ UsuarioRoutes
     .put('/atualizar', auth, UsuarioController.atualizar)
     .put('/desativar', auth, UsuarioController.desativar)
     .delete('/deletar/:id', auth, UsuarioController.deletar)  
-
-    .post('/esqueceu_a_senha', UsuarioController.forgot_password)
-    .post('/redefinir_senha/:token', UsuarioController.reset_passowrd)
+    .post('/esqueceu_senha', UsuarioController.esqueceu_senha)
+    .post('/redefinir_senha', UsuarioController.redefinir_senha)
+    
     .put('/endereco', auth, UsuarioController.updateEndereco)
 
 module.exports = UsuarioRoutes

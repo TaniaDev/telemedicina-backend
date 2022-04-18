@@ -1,10 +1,14 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto')
 const jwt_decode = require('jwt-decode')
+const jwt = require('jsonwebtoken')
 const con = require('../database')
+const sendResetPasswordEmail = require('../utils/sendResetPasswordEmail')
+const authConfig = require('../config/auth');
 
 const UsuarioDAO = require('../dao/UsuarioDAO')
-const Usuario = require('../model/Usuario')
+const Usuario = require('../model/Usuario');
+const getCurrentTime = require('../utils/getCurrentTime');
 
 let usuarioDAO = new UsuarioDAO()
 
@@ -136,51 +140,43 @@ module.exports = {
             next(error)
         }
     },
-    forgot_password: async(req, res, next) => {
+    esqueceu_senha: async(req, res, next) => {
         try{
-            const { nome, email } = req.body
+            const { email } = req.body
+            const usuario = await usuarioDAO.obterUmPeloEmail(email)
 
-            const usuario = await con('usuario').where({email})
             if(!usuario){
-                return res.status(400).send({error: 'Usuário não encontrado!'})
+                return res.status(404).send({error: 'Usuário não encontrado!'})
             }
 
-            const token = crypto.randomBytes(20).toString('hex')
-            const now = new Date()
-            now.setHours(now.getHours() + 1)
+            const token = jwt.sign({
+                email: usuario.email,
+            }, authConfig.secret, { expiresIn: 3600 })
 
-            await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
+            await sendResetPasswordEmail(email, usuario.nome, token)
 
-            require('../modules/mailer')(email, nome, token)
-
-            return res.status(200).send({token, email})
+            return res.status(200).send({ msg: "Verifique seu E-mail para redefinição de senha." })
         } catch (error) {
             next(error)
         }
     },
-    reset_passowrd: async(req, res, next) => {
+    redefinir_senha: async(req, res, next) => {
         try {
-            const { token } = req.params
-            const { email, senha } = req.body
-            console.log(token)
-            console.log(senha)
-            const [usuario] = await con('usuario').where({resetToken: token})
+            const { senha, token } = req.body
 
-            if(!usuario || token !== usuario.resetToken){
-                return res.status(400).send({error: 'Token inválido!'})
-            }
-            const now = new Date()
-
-            if(now > usuario.resetTokenExpires){
-                return res.status(400).send({error: 'Token expirou, gere um novo!'})
-            }
-
-            const senhaHash = await bcrypt.hash(senha, 10);
-
-            await con('usuario').update({senha: senhaHash}).where({id: usuario.id})
-            
-            return res.status(200).send()
-
+            if (!token) {
+                return res.status(401).json({ error: 'Token não informado'})
+              }
+              
+              jwt.verify(token, authConfig.secret, async function (err, decoded) {
+                  if (err) {
+                      return res.status(403).json({ error: 'Acesso negado' })
+                    }
+                    const { email } = decoded
+                    const senhaHash = await bcrypt.hash(senha, 10);
+                    await usuarioDAO.atualizarSenhaPeloEmail(senhaHash, email)
+                return res.status(200).json({ msg: "Senha atualizada com sucesso." })
+            })
         } catch (error) {
             next(error)
         }
