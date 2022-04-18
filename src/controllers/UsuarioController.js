@@ -195,6 +195,15 @@ module.exports = {
             next(error)
         }
     },
+    getUserByEmail: async (req, res, next) => {
+        try{
+            const {email} = req.params
+            const [result] = await con('usuario').where({email})
+            return res.status(200).json(result)
+        }catch(error){  
+            next(error)
+        }
+    },
     getType: async (req, res, next) => {
         try{
             const authHeader = req.headers.authorization
