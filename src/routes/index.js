@@ -6,6 +6,8 @@ const ConsultaController = require('../controllers/ConsultaController')
 const AdminController = require('../controllers/AdminController')
 const MedicoController = require('../controllers/MedicoController')
 const PacienteController = require('../controllers/PacienteController')
+const ProntuarioController = require('../controllers/ProntuarioController')
+
 const auth = require('../middlewares/auth')
 const patient = require('../middlewares/patient')
 const doctor = require('../middlewares/doctor')
@@ -71,9 +73,8 @@ routes
     .delete('/admin/consultas/deletar/:id', auth, ConsultaController.delete)
     .get('/consulta/:id', auth, ConsultaController.getAppointment)
 
-    // .get('/prontuario', auth, PacienteController.getProntuario) 
-    // .post('/prontuario', auth, PacienteController.createProntuario) 
-    .get('/prontuario', PacienteController.getProntuario) 
-    .post('/prontuario', PacienteController.createProntuario) 
+    //Prontuario
+    .get('/prontuario/:id_paciente', auth, doctor, ProntuarioController.getProntuario) 
+    .post('/prontuario', auth, doctor, ProntuarioController.createProntuario) 
 
 module.exports = routes
