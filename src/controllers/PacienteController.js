@@ -1,50 +1,104 @@
 const jwt_decode = require('jwt-decode')
 const con = require('../database')
 
+const PacienteDAO = require('../dao/PacienteDAO')
+const Paciente = require('../model/Paciente')
+
+let pacienteDAO = new PacienteDAO()
+
 module.exports = {
-    getPaciente: async (req, res, next) => {
-        try{
+    cadastrar: async (req, res, next) => {
+        try {
+            const {
+                id,
+                peso,
+                altura,
+                alergia,
+                doenca_cronica,
+                vicio,
+                medicamento,
+                antecedente_familiar
+            } = req.body
+
+            const paciente = new Paciente({ id, peso, altura, alergia, doenca_cronica, vicio, medicamento, antecedente_familiar })
+
+            await pacienteDAO.cadastrarPaciente(paciente)
+
+            return res.status(201).json({ msg: 'Paciente cadastrado com sucesso!' })
+        }
+        catch(error) {
+            next(error)
+        }
+    },
+    obter: async (req, res, next) => {
+        try {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
-            const [result] = await con('paciente').where({id_usuario: id})
-            
-            return res.status(200).json(result)
+            const paciente = await pacienteDAO.obterUmPacientePeloId(id)
+
+            if (!paciente) {
+                return res.status(404).json({ error: 'Paciente não existente' })
+            }
+
+            return res.status(200).json(paciente)
         } catch (error) {
             next(error)
         }
     },
-    updatePaciente: async (req, res, next) => {
+    atualizar: async (req, res, next) => {
         try{
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
-            const {peso, altura, alergia, doenca_cronica, vicio, medicamento} = req.body
+            const { 
+                peso,
+                altura,
+                alergia,
+                doenca_cronica,
+                vicio,
+                medicamento,
+                antecedente_familiar
+            } = req.body
 
-            await con('paciente').update({peso, altura, alergia, doenca_cronica, vicio, medicamento}).where({id_usuario: id})
-            return res.status(200).json()
+            const paciente = await pacienteDAO.obterUmPacientePeloId(id)
+
+            if (!paciente) {
+                return res.status(404).json({ error: 'Paciente não existente' })
+            }
+
+            await pacienteDAO.atualizarPaciente({ 
+                id,
+                peso,
+                altura,
+                alergia,
+                doenca_cronica,
+                vicio,
+                medicamento,
+                antecedente_familiar
+            })
+            
+            return res.status(200).json({ msg: 'Paciente atualizado com sucesso!' })
         }catch (error) {
             next(error)
         }
     },
-    getPaciente: async (req, res, next) => {
-        try{
-            const {id_paciente} = req.params
-            
-            if(id_paciente == null){
-                return res.status(404).json()
+    obterPacienteCompleto: async (req, res, next) => {
+        //obter os dados do paciente e os dados de usuário para prontuário
+        try {
+            const { id } = req.params
+
+            const paciente = await pacienteDAO.obterPacienteCompleto(id)
+            console.log(paciente)
+            if (!paciente) {
+                return res.status(404).json({ error: 'Paciente não existente' })
             }
 
-            const [result] = await con('usuario').select('*').join('paciente', 'paciente.id_usuario', '=', 'usuario.id').where({'id_usuario': id_paciente})
-            return res.status(200).json(result)
+            return res.status(200).json(paciente)
         } catch (error) {
             next(error)
         }
     }
-
-
-
-
 }

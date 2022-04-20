@@ -1,4 +1,9 @@
-const con = require('../database');
+const con = require('../database')
+
+const EspecialidadeDAO = require('../dao/EspecialidadeDAO')
+const Especialidade = require('../model/Especialidade')
+
+let especialidadeDAO = new EspecialidadeDAO()
 
 module.exports = {
     index: async (req, res, next) => {
@@ -39,7 +44,39 @@ module.exports = {
             const others = await con('usuario').select('nome','tipo').where({ id })
 
             return res.json({results, others})
-        }catch (error) {
+        } catch (error) {
+            next(error)
+        }
+    },
+    cadastrarEspecialidade: async (req, res, next) => {
+        try {
+            const { nome } = req.body
+
+            const especialidadeExistente = await especialidadeDAO.obterEspecialidadePeloNome(nome)
+
+            if (especialidadeExistente) {
+                return res.status(403).json({ error: 'Especialidade já cadastrada.' })
+            }
+
+            const especialidade = new Especialidade({ nome })
+
+            await especialidadeDAO.cadastrarEspecialidade(especialidade)
+
+            return res.status(201).json({ msg: 'Especialidade cadastrada com sucesso!' })
+
+        } catch(error) {
+            next(error)
+        }
+    },
+    obterUmaEspecialidade: async (req, res, next) => {
+        try {
+            const { id } = req.params
+
+            const especialidade = await especialidadeDAO.obterUmaEspecialidade(id)
+
+            return res.status(200).json(especialidade)
+
+        } catch(error) {
             next(error)
         }
     }

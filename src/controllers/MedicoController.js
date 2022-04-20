@@ -2,7 +2,58 @@ const bcrypt = require('bcryptjs')
 const jwt_decode = require('jwt-decode')
 const con = require('../database')
 
+const MedicoDAO = require('../dao/MedicoDAO')
+const Medico = require('../model/Medico')
+
+let medicoDAO = new MedicoDAO()
+
 module.exports = {
+    cadastrar: async (req, res, next) => {
+        try {
+            const { 
+                id,
+                crm,
+                especialidades
+             } = req.body
+            
+            const medico = new Medico({ id, crm, especialidades })
+
+            await medicoDAO.cadastrarMedico(medico)
+
+            return res.status(201).json({ msg: 'Médico cadastrado com sucesso!' })
+        }
+        catch(error) {
+            next(error)
+        }
+    },
+    obter: async (req, res, next) => {
+        try {
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const medico = await medicoDAO.obterUmMedicoPeloId(id)
+
+            return res.status(200).json(medico)
+        }
+        catch(error) {
+            next(error)
+        }
+    },
+    obterMedicoCompleto: async (req, res, next) => {
+        try {
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const medico = await medicoDAO.obterMedicoCompleto(id)
+
+            return res.status(200).json(medico)
+        }
+        catch(error) {
+            next(error)
+        }
+    },
     getAllSpecialties: async (req, res, next) => {
         try {
             const specialties = await con('especialidade')

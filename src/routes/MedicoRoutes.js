@@ -4,6 +4,10 @@ const doctor = require('../middlewares/patient')
 const MedicoController = require('../controllers/MedicoController')
 
 MedicoRoutes
+    .post('/cadastrar', MedicoController.cadastrar)
+    .get('/obter', auth, MedicoController.obter)
+    .get('/obter/completo', auth, MedicoController.obterMedicoCompleto)
+    
     .get('/especialidades', MedicoController.getAllSpecialties)
     .get('/getDoctors', MedicoController.getDoctors)
     .get('/getDoctorsBySpecialty/:id_specialty', MedicoController.getDoctorsBySpecialty)

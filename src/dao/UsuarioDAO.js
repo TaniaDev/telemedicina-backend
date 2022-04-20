@@ -8,11 +8,13 @@ module.exports = class UsuarioDAO {
             dt_nascimento,
             genero,
             telefone,
+            endereco,
             email,
             senha,
-            tipo,
+            tipo
         } = usuario
-        return await con('usuario')
+
+        const [novoUsuario] = await con('usuario')
                         .insert({
                             nome,
                             dt_nascimento,
@@ -23,18 +25,40 @@ module.exports = class UsuarioDAO {
                             tipo
                         })
                         .returning('id')
+        await con('endereco')
+                        .insert({
+                            id_usuario: novoUsuario.id,
+                            cep: endereco.cep,
+                            logradouro: endereco.logradouro,
+                            bairro: endereco.bairro,
+                            numero: endereco.numero,
+                            complemento: endereco.complemento,
+                            cidade: endereco.cidade,
+                            estado: endereco.estado
+                        })
+                        .where({ id_usuario: novoUsuario.id })
+        return novoUsuario
     }
 
     async obterUmPeloId(id) {
         const [usuario] = await con('usuario')
-                            .where({ id })
                             .select(
                                 'usuario.nome',
+                                'usuario.dt_nascimento',
                                 'usuario.genero',
                                 'usuario.telefone',
                                 'usuario.email',
-                                'usuario.senha'
+                                'endereco.cep',
+                                'endereco.logradouro',
+                                'endereco.bairro',
+                                'endereco.numero',
+                                'endereco.complemento',
+                                'endereco.cidade',
+                                'endereco.estado'
                             )
+                            .from('usuario')
+                            .join('endereco', { 'usuario.id': 'endereco.id_usuario' })
+                            .andWhere({ id })
                             .limit(1)
         return usuario
     }
@@ -43,6 +67,7 @@ module.exports = class UsuarioDAO {
         const [usuario] = await con('usuario')
                             .where({ email })
                             .select(
+                                'usuario.nome',
                                 'usuario.email'
                             )
                             .limit(1)
@@ -59,22 +84,51 @@ module.exports = class UsuarioDAO {
             email,
             senha
         } = usuario
-        return await con('usuario')
+        const usuarioAtualizado = await con('usuario')
+                            .update({
+                                nome,
+                                dt_nascimento,
+                                genero,
+                                telefone,
+                                email,
+                                senha,
+                                atualizado_em: getCurrentTime()
+                            })
+                            .where({ id })
+               
+        return usuarioAtualizado
+    }
+
+    async atualizarEndereco(endereco) {
+        const {
+            id,
+            cep,
+            logradouro,
+            numero,
+            bairro,
+            complemento,
+            cidade,
+            estado
+        } = endereco
+        return await con('endereco')
                         .update({
-                            nome,
-                            dt_nascimento,
-                            genero,
-                            telefone,
-                            email,
-                            senha
+                            cep,
+                            logradouro,
+                            numero,
+                            bairro,
+                            complemento,
+                            cidade,
+                            estado,
+                            atualizado_em: getCurrentTime()
                         })
-                        .where({ id })
+                        .where({ id_usuario: id })
     }
 
     async atualizarSenhaPeloEmail(senha, email) {
         return await con('usuario')
                         .update({
-                            senha
+                            senha,
+                            atualizado_em: getCurrentTime()                        
                         })
                         .where({ email })
     }
@@ -89,6 +143,5 @@ module.exports = class UsuarioDAO {
         return await con('usuario')
                         .where({ id })
                         .update({ desativado_em: getCurrentTime() })
-    }
-    
+    } 
 }

@@ -4,13 +4,12 @@ const UsuarioController = require('../controllers/UsuarioController')
 
 UsuarioRoutes
     .post('/cadastrar', UsuarioController.cadastrar)    
-    .get('/obter/:id', auth, UsuarioController.obter)  
+    .get('/obter', auth, UsuarioController.obter)  
     .put('/atualizar', auth, UsuarioController.atualizar)
+    .put('/atualizar/endereco', auth, UsuarioController.atualizarEndereco)
     .put('/desativar', auth, UsuarioController.desativar)
     .delete('/deletar/:id', auth, UsuarioController.deletar)  
     .post('/esqueceu_senha', UsuarioController.esqueceu_senha)
     .post('/redefinir_senha', UsuarioController.redefinir_senha)
-    
-    .put('/endereco', auth, UsuarioController.updateEndereco)
 
 module.exports = UsuarioRoutes

@@ -1,13 +1,12 @@
 
 const nodemailer = require('nodemailer')
-const { host, port, user, pass } = require('../config/mail.json')
 
-module.exports = (email, nome, token) => {
+module.exports = function sendResetPasswordEmail(email, nome, token) {
     
     const smtpTransport = nodemailer.createTransport({
-        host,
-        port,
-        auth: { user, pass }
+        host: process.env.MAIL_HOST,
+        port: process.env.MAIL_PORT,
+        auth: { user: process.env.MAIL_USER, pass: process.env.MAIL_PASS }
     })
     
     const mail = {

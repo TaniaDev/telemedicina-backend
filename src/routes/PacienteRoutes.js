@@ -4,8 +4,9 @@ const patient = require('../middlewares/patient')
 const PacienteController = require('../controllers/PacienteController')
 
 PacienteRoutes
-    .get('/:id', auth, patient, PacienteController.getPaciente)  
-    .put('/:id', auth, patient, PacienteController.updatePaciente)
-    .get('/getPaciente/:id_paciente', PacienteController.getPaciente) 
+    .post('/cadastrar', PacienteController.cadastrar)
+    .get('/obter', auth, patient, PacienteController.obter)  
+    .put('/:id', auth, patient, PacienteController.atualizar)
+    .get('/obter/:id', auth, PacienteController.obterPacienteCompleto) 
 
 module.exports = PacienteRoutes

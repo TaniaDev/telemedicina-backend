@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const authConfig = require('../config/auth');
+const authConfig = process.env.SECRET_API
 const con = require('../database')
 
 module.exports = {
@@ -18,7 +18,7 @@ module.exports = {
                     id: usuario.id,
                     nome: usuario.nome,
                     tipo: usuario.tipo
-                }, authConfig.secret, {expiresIn: 86400,})
+                }, authConfig, {expiresIn: 86400,})
 
                 if (match) {
                     if(usuario.desativado_em != null){
@@ -36,6 +36,5 @@ module.exports = {
         } catch (error) {
             next(error)
         }
-    },
-    
+    }  
 }
