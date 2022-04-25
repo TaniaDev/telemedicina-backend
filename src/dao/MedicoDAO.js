@@ -63,17 +63,17 @@ module.exports = class MedicoDAO {
 
     async atualizarMedico(medico) {
         const {
-            id,
+            id_medico,
             especialidades
         } = medico
 
         const medicoAtualizado = await con('medico')
                                         .update({
-                                            id,
+                                            id: id_medico,
                                             crm,
                                             atualizado_em: getCurrentTime()
                                         })
-                                        .where({ id_usuario: id })
+                                        .where({ id_usuario: id_medico })
 
         for (let i=0; i<especialidades.length; i++) {
                 await con('medico_especialidade')

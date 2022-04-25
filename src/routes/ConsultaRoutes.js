@@ -8,7 +8,7 @@ const patient = require('../middlewares/patient')
 const ConsultaController = require('../controllers/ConsultaController')
 
 ConsultaRoutes
-    .post('/criar', auth, doctor, ConsultaController.criar)
+    .post('/criar', auth, ConsultaController.criar)
     .put('/agendar/:id_consulta', auth, patient, ConsultaController.agendar)
     .get('/obter', auth, ConsultaController.obterConsultas) 
     .get('/obter/:id_consulta', auth, ConsultaController.obterUmaConsultaPeloId)   

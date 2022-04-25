@@ -4,7 +4,7 @@ const Usuario = require('./UsuarioRoutes')
 const Paciente = require('./PacienteRoutes')
 const Medico = require('./MedicoRoutes')
 const Consulta = require('./ConsultaRoutes')
-const Admin = require('./EspecialidadeRoutes')
+const Especialidade = require('./EspecialidadeRoutes')
 const Sessao = require('./SessaoRoutes')
 
     routes
@@ -12,7 +12,7 @@ const Sessao = require('./SessaoRoutes')
         .use('/api/sessao', Sessao)
         .use('/api/paciente', Paciente)
         .use('/api/medico', Medico)
-        .use('/api/admin', Admin)
+        .use('/api/especialidade', Especialidade)
         .use('/api/consulta', Consulta)
         .get('/ping', (_, res) => {res.send('pong')})
 

@@ -46,4 +46,18 @@ module.exports = class EspecialidadeDAO {
                 
         return especialidades
     }
+
+    async verificarMedicoEspecialidade(medicoEspecialidade) {
+        const {
+            id_medico,
+            id_especialidade
+        } = medicoEspecialidade
+
+        const MedicoEspecialidade = await con('medico_especialidade')
+                                        .select('*')
+                                        .where({ id_medico: id_medico })
+                                        .andWhere({ id_especialidade: id_especialidade })
+        
+        return MedicoEspecialidade
+    }
 }

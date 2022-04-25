@@ -39,13 +39,17 @@ module.exports = {
             if (usuarioExistente) {
                 return res.status(403).json({ error: 'Usuário já existente com este e-mail' })
             }
+
+            if (usuarioExistente.tipo === 'Admin') {
+                return res.status(401).json({ error: 'Não autorizado para criar usuários do tipo Admin' })
+            }
             
             const senhaHash = await bcrypt.hash(senha, 10)
             const usuario = new Usuario({ nome, dt_nascimento, genero, telefone, endereco, email, senha: senhaHash, tipo })
 
             await usuarioDAO.cadastrar(usuario)
 
-            return res.status(201).json({msg: 'Usuário cadastrado com sucesso!'})
+            return res.status(201).json({ msg: 'Usuário cadastrado com sucesso!' })
         } catch(error) {
             next(error)
         }
@@ -55,8 +59,18 @@ module.exports = {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
             const id = decode.id
+
+            const { id_usuario_admin } = req.body
+
+            let id_usuario
+
+            if (decode.tipo === 'Admin') {
+                id_usuario = id_usuario_admin
+            } else {
+                id_usuario = id
+            }
             
-            const usuario = await usuarioDAO.obterUmPeloId(id)
+            const usuario = await usuarioDAO.obterUmPeloId(id_usuario)
             
             if (!usuario) {
                 return res.status(404).json({ error: 'Usuário não existente'})
@@ -74,13 +88,22 @@ module.exports = {
             const id = decode.id
             
             const {
+                id_usuario_admin,
                 nome,
                 dt_nascimento,
                 genero,
                 telefone,
                 email,
-                senha
+                senha,
             } = req.body
+
+            let id_usuario
+
+            if (decode.tipo === 'Admin') {
+                id_usuario = id_usuario_admin
+            } else {
+                id_usuario = id
+            }
  
             if (senha) {
                 const senhaHash = await bcrypt.hash(data.senha, 10)
@@ -124,7 +147,15 @@ module.exports = {
                 estado
             } = req.body
 
-            const usuarioExistente = await usuarioDAO.obterUmPeloId(id)
+            let id_usuario
+
+            if (decode.tipo === 'Admin') {
+                id_usuario = id_usuario_admin
+            } else {
+                id_usuario = id
+            }
+
+            const usuarioExistente = await usuarioDAO.obterUmPeloId(id_usuario)
 
             if (!usuarioExistente) {
                 return res.status(404).json({ error: 'Usuário não existente.' })

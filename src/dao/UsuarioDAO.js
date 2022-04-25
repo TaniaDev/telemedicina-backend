@@ -68,7 +68,8 @@ module.exports = class UsuarioDAO {
                             .where({ email })
                             .select(
                                 'usuario.nome',
-                                'usuario.email'
+                                'usuario.email',
+                                'usuario.tipo'
                             )
                             .limit(1)
         return usuario
@@ -163,7 +164,7 @@ module.exports = class UsuarioDAO {
         res.header('X-Total-Count', count["count"])
 
         const usuarios = await query
-        
+
         return usuarios
     }
 }

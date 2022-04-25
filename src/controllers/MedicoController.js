@@ -32,9 +32,19 @@ module.exports = {
         try {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const id_usuario = decode.id
 
-            const medico = await medicoDAO.obterUmMedicoPeloId(id)
+            const { id_medico_admin } = req.body
+
+            let id_medico
+
+            if (decode.tipo === 'Admin') {
+                id_medico = id_medico_admin
+            } else if (decode.tipo === 'Medico') {
+                id_medico = id_usuario
+            }
+
+            const medico = await medicoDAO.obterUmMedicoPeloId(id_medico)
 
             if (!medico){
                 return res.status(404).json({ error: 'Médico não existente' })
@@ -50,11 +60,22 @@ module.exports = {
         try {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const id_usuario = decode.id
 
             const {
-                especialidades
+                especialidades,
+                id_medico_admin
             } = req.body
+
+            let id_medico
+            let modificado_por
+
+            if (decode.tipo === 'Admin') {
+                modificado_por = id_usuario
+                id_medico = id_medico_admin
+            } else if (decode.tipo === 'Medico') {
+                id_medico = modificado_por = id_usuario
+            }
 
             especialidades.map(async (result, index) => {
                 let especialidade = await especialidadeDAO.obterUmaEspecialidade(result)
@@ -70,7 +91,7 @@ module.exports = {
                 }
             })
 
-            await medicoDAO.atualizarMedico({ id, especialidades })
+            await medicoDAO.atualizarMedico({ id_medico, especialidades, modificado_por })
             
             return res.status(200).json({ msg: 'Médico atualizado com sucesso!'})
 
@@ -85,7 +106,17 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
-            const medico = await medicoDAO.obterMedicoCompleto(id)
+            const { id_medico_admin } = req.body
+
+            let id_medico
+
+            if (decode.tipo === 'Admin') {
+                id_medico = id_medico_admin
+            } else if (decode.tipo === 'Medico') {
+                id_medico = id
+            }
+
+            const medico = await medicoDAO.obterMedicoCompleto(id_medico)
 
             return res.status(200).json(medico)
         }

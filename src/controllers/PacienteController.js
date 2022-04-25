@@ -36,7 +36,17 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
-            const paciente = await pacienteDAO.obterUmPacientePeloId(id)
+            const { id_paciente_admin } = req.body
+
+            let id_paciente
+
+            if (decode.tipo === 'Paciente') {
+                id_paciente = id
+            } else {
+                id_paciente = id_paciente_admin
+            }
+
+            const paciente = await pacienteDAO.obterUmPacientePeloId(id_paciente)
 
             if (!paciente) {
                 return res.status(404).json({ error: 'Paciente não existente' })
@@ -48,7 +58,7 @@ module.exports = {
         }
     },
     atualizar: async (req, res, next) => {
-        try{
+        try {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
             const id = decode.id
@@ -63,7 +73,17 @@ module.exports = {
                 antecedente_familiar
             } = req.body
 
-            const paciente = await pacienteDAO.obterUmPacientePeloId(id)
+            const { id_paciente_admin } = req.body
+
+            let id_paciente
+
+            if (decode.tipo === 'Paciente') {
+                id_paciente = id
+            } else if (decode.tipo === 'Admin')  {
+                id_paciente = id_paciente_admin
+            }
+
+            const paciente = await pacienteDAO.obterUmPacientePeloId(id_paciente)
 
             if (!paciente) {
                 return res.status(404).json({ error: 'Paciente não existente' })

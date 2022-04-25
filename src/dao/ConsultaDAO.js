@@ -6,7 +6,8 @@ module.exports = class ConsultaDAO {
         const {
             id_medico,
             dt_hr_consulta,
-            id_especialidade
+            id_especialidade,
+            modificado_por
         } = consulta
 
         const consultaNova = await con('consulta')
@@ -16,9 +17,9 @@ module.exports = class ConsultaDAO {
                                     status: 'Disponível',
                                     dt_hr_consulta,
                                     criado_em: getCurrentTime(),
-                                    criado_por: id_medico,
+                                    criado_por: modificado_por,
                                     atualizado_em: getCurrentTime(),
-                                    atualizado_por: id_medico
+                                    atualizado_por: modificado_por
                                 })
         return consultaNova
     }
@@ -26,39 +27,29 @@ module.exports = class ConsultaDAO {
     async agendarConsulta(consulta) {
         const {
             id_consulta,
-            id_usuario
+            id_paciente,
+            modificado_por
         } = consulta
 
         const consultaAgendada = await con('consulta')
             .where({ id: id_consulta })
             .update({
-                id_paciente: id_usuario,
+                id_paciente: id_paciente,
                 status: "Agendado",
                 atualizado_em: getCurrentTime(),
-                atualizado_por: id_usuario
+                atualizado_por: modificado_por
             })
         
         return consultaAgendada
     }
 
-    async obterConsultasPeloUsuario(usuario) {
-        const {
-            id_usuario,
-            tipo_usuario
-        } = usuario
+    async obterConsultasPeloUsuario(id) {
 
-        let consulta = {}
+        const consulta = await con('consulta')
+            .select('*')
+            .where({ id_paciente: id })
+            .orWhere({ id_medico: id })    
 
-        if (tipo_usuario === 'Paciente') {
-            consulta = await con('consulta')
-                .select('*')
-                .where({ id_paciente: id_usuario })    
-        }
-        else if (tipo_usuario === 'Medico') {
-            consulta = await con('consulta')
-                .select('*')
-                .where({ id_medico: id_usuario })    
-        }
 
         return consulta
     }
@@ -75,7 +66,7 @@ module.exports = class ConsultaDAO {
     async cancelarConsulta(consulta) {
         const {
             id_consulta,
-            id_cancelador
+            modificado_por
         } = consulta
 
         const consultaCancelada = await con('consulta')
@@ -83,7 +74,7 @@ module.exports = class ConsultaDAO {
             .update({
                 status: "Cancelado",
                 cancelado_em: getCurrentTime(),
-                cancelado_por: id_cancelador
+                cancelado_por: modificado_por
             })
         
         return consultaCancelada
@@ -97,7 +88,8 @@ module.exports = class ConsultaDAO {
             id_medico,
             id_paciente,
             id_especialidade,
-            dt_hr_consulta
+            dt_hr_consulta,
+            modificado_por
         } = consulta
 
         const consultaAtualizada = await con('consulta')
@@ -106,10 +98,27 @@ module.exports = class ConsultaDAO {
                                         id_paciente,
                                         dt_hr_consulta,
                                         atualizado_em: getCurrentTime(),
-                                        atualizado_por: id_medico
+                                        atualizado_por: modificado_por
                                     }).where({ id: id_consulta })
         
         return consultaAtualizada
+    }
+
+    async verificarDataHorarioExistente(consulta) {
+        const {
+            id_medico,
+            dt_hr_consulta
+        } = consulta
+
+        const dtHrExistente = await con('consulta')
+                                    .select('id')
+                                    .where({
+                                        id_medico
+                                    })
+                                    .andWhere({
+                                        dt_hr_consulta
+                                    })
+        return dtHrExistente
     }
 
 }
