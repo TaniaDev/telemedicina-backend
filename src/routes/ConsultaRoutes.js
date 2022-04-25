@@ -1,19 +1,24 @@
 const ConsultaRoutes = require('express').Router()
+
 const auth = require('../middlewares/auth')
+const admin = require('../middlewares/admin')
+const doctor = require('../middlewares/doctor')
+const patient = require('../middlewares/patient')
+
 const ConsultaController = require('../controllers/ConsultaController')
 
 ConsultaRoutes
-    .put('/agendar/:id_consulta', auth, ConsultaController.agendar) 
-    .get('/getConsultasDisponiveis', auth, ConsultaController.getConsultasDisponiveis)   
-    .put('/cancelar/:id_consulta', auth, ConsultaController.cancel)
-    .put('/changeDate', auth, ConsultaController.changeDate)
-    .post('/criar', auth, ConsultaController.create)
-    .get('/getMyAppointments/all', ConsultaController.getMyAppointments)
+    .post('/criar', auth, doctor, ConsultaController.criar)
+    .put('/agendar/:id_consulta', auth, patient, ConsultaController.agendar)
+    .get('/obter', auth, ConsultaController.obterConsultas) 
+    .get('/obter/:id_consulta', auth, ConsultaController.obterUmaConsultaPeloId)   
+    .put('/cancelar/:id_consulta', auth, ConsultaController.cancelar)
+    .put('/editar/:id_consulta', auth, admin, doctor, ConsultaController.atualizar)
+    .delete('/deletar/:id', auth, admin, ConsultaController.deletar)
+    
     .get('/getMyAppointments/today', ConsultaController.getTodayAppointments)
     .get('/getMyAppointments/week', ConsultaController.getWeekAppointments)
     .get('/getMyAppointments/scheduled', ConsultaController.getScheduledLateAppointments)
     .get('/getMyAppointments/canceled', ConsultaController.getCanceledLateAppointments)
-    .delete('/deletar/:id', auth, ConsultaController.delete)
-    .get('/:id', auth, ConsultaController.getAppointment)
 
 module.exports = ConsultaRoutes
