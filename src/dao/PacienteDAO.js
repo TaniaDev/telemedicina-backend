@@ -85,4 +85,13 @@ module.exports = class PacienteDAO {
         
         return pacienteAtualizado
     }
+
+    async obterTodosPacientes() {
+
+        const pacientes = await con('paciente').select('*')
+
+        return pacientes
+
+        
+    }
 }

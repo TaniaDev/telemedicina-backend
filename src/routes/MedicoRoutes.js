@@ -1,22 +1,16 @@
 const MedicoRoutes = require('express').Router()
 const auth = require('../middlewares/auth')
-const doctor = require('../middlewares/patient')
+const doctor = require('../middlewares/doctor')
+const admin = require('../middlewares/admin')
 const MedicoController = require('../controllers/MedicoController')
 
 MedicoRoutes
     .post('/cadastrar', MedicoController.cadastrar)
     .get('/obter', auth, MedicoController.obter)
-    .get('/obter/completo', auth, MedicoController.obterMedicoCompleto)
+    .get('/obter/completo', auth, doctor, MedicoController.obterMedicoCompleto)
     
-    .get('/especialidades', MedicoController.getAllSpecialties)
-    .get('/getDoctors', MedicoController.getDoctors)
-    .get('/getDoctorsBySpecialty/:id_specialty', MedicoController.getDoctorsBySpecialty)
-    .get('/getDoctor/:id_medico', MedicoController.getDoctor)
-    .get('/getSpecialtie/:id_especialidade', MedicoController.getSpecialtie)
-    .get('/getSpecialtieByDoctor/:id_medico', MedicoController.getSpecialtieByDoctor)
-    .post('/registerSpecialty', doctor, MedicoController.registerSpecialty)
-    .get('/disponibilidade', MedicoController.doctorAvailability)
+    .get('/obterTodos', auth, admin, MedicoController.obterMedicos)
+    .get('/obterMedicosPelaEspecialidade/:id_especialidade', auth, MedicoController.obterMedicosPelaEspecialidade)
 
 module.exports = MedicoRoutes
-
     

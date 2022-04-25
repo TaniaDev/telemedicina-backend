@@ -64,7 +64,6 @@ module.exports = class MedicoDAO {
     async atualizarMedico(medico) {
         const {
             id,
-            crm,
             especialidades
         } = medico
 
@@ -72,12 +71,46 @@ module.exports = class MedicoDAO {
                                         .update({
                                             id,
                                             crm,
-                                            especialidades,
                                             atualizado_em: getCurrentTime()
                                         })
                                         .where({ id_usuario: id })
+
+        for (let i=0; i<especialidades.length; i++) {
+                await con('medico_especialidade')
+                .update({
+                    id_especialidade: especialidades[i]
+                })
+                .where({ id_medico: id })
+        } 
         
         return medicoAtualizado
+    }
+
+    async obterListaMedicoEspecialidade(id) {
+
+        const listaMedicoEspecialidade = await con('medico_especialidade')
+                                        .select('*')
+                                        .where({ id_medico: id })
+                                        .orWhere({ id_especialidade: id })
+        
+        return listaMedicoEspecialidade
+    }
+
+    async obterTodosMedicos() {
+
+        const medicos = await con('medico').select('*')
+
+        return medicos
+
+        
+    }
+    
+    async obterMedicosPelaEspecialidade(id) { 
+        const medicos = await con('medico')
+                            .select('*')
+                            .join('medico_especialidade', 'medico.id_usuario', '=', 'medico_especialidade.id_medico')
+                            .where({ 'medico_especialidade.id_especialidade': id })
+        return medicos
     }
 
 }

@@ -100,5 +100,15 @@ module.exports = {
         } catch (error) {
             next(error)
         }
+    },
+    obterPacientes: async (req, res, next) => {
+        try {
+                const pacientes = await medicoDAO.obterTodosPacientes()
+
+                return res.status(200).json(pacientes)
+                
+        } catch(error) {
+            next(error)
+        }
     }
 }

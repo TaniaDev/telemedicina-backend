@@ -30,4 +30,20 @@ module.exports = class EspecialidadeDAO {
 
         return especialidade
     }
+
+    async obterTodasEspecialidades() {
+        const especialidades = await con('especialidade')
+                                        select('*')
+
+        return especialidades
+    }
+
+    async obterEspecialidadesPeloMedico(id) { 
+        const especialidades = await con('especialidade')
+                            .select('*')
+                            .join('medico_especialidade', 'especialidade.id', '=', 'medico_especialidade.id_especialidade')
+                            .where({ 'medico_especialidade.id_medico': id })
+                
+        return especialidades
+    }
 }

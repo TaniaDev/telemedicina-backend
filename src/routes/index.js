@@ -4,7 +4,7 @@ const Usuario = require('./UsuarioRoutes')
 const Paciente = require('./PacienteRoutes')
 const Medico = require('./MedicoRoutes')
 const Consulta = require('./ConsultaRoutes')
-const Admin = require('./AdminRoutes')
+const Admin = require('./EspecialidadeRoutes')
 const Sessao = require('./SessaoRoutes')
 
     routes

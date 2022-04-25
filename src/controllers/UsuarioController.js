@@ -12,7 +12,6 @@ const authConfig = process.env.SECRET_API
 
 let usuarioDAO = new UsuarioDAO()
 
-
 module.exports = {
     cadastrar: async (req, res, next) => {
         try {
@@ -220,6 +219,21 @@ module.exports = {
                     await usuarioDAO.atualizarSenhaPeloEmail(senhaHash, email)
                 return res.status(200).json({ msg: "Senha atualizada com sucesso." })
             })
+        } catch (error) {
+            next(error)
+        }
+    },
+    obterUsuarios: async (req, res, next) => {
+        try {
+            const { id, page = 1 } = req.query
+
+            usuarios = await usuarioDAO.obterTodosUsuarios({
+                id,
+                page
+            })
+
+            return res.status(200).json(usuarios)
+
         } catch (error) {
             next(error)
         }

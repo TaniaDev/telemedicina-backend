@@ -143,5 +143,27 @@ module.exports = class UsuarioDAO {
         return await con('usuario')
                         .where({ id })
                         .update({ desativado_em: getCurrentTime() })
-    } 
+    }
+
+    async obterTodosUsuarios(id) {
+        const query = await con('usuario').where({ 'desativado_em': null })
+            .limit(10)
+            .offset((page - 1) * 10)
+            .orderBy('id')
+
+        const countObj = con('usuario').count()
+
+        if (id) {
+            query
+            .where({ id })
+            .select('usuario.email')
+        }
+
+        const [count] = await countObj
+        res.header('X-Total-Count', count["count"])
+
+        const usuarios = await query
+        
+        return usuarios
+    }
 }
