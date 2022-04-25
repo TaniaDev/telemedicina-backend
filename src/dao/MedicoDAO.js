@@ -47,8 +47,18 @@ module.exports = class MedicoDAO {
                                 .join('medico', { 'usuario.id': 'medico.id_usuario' })
                                 .andWhere({ id })
                                 .limit(1)
-        
-        return medico
+
+        const especialidades = await con('especialidade')
+                                        .select(
+                                            'especialidade.id',
+                                            'especialidade.nome'
+                                        )
+                                        .from('especialidade')
+                                        .join('medico_especialidade', { 'medico_especialidade.id_especialidade': 'especialidade.id' })
+                                        .join('medico', { 'medico.id_usuario': 'medico_especialidade.id_medico'})
+                                        .andWhere({ 'medico.id_usuario': id })
+         
+        return { medico, especialidades }
     }
 
     async atualizarMedico(medico) {
