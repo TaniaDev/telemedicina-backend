@@ -3,7 +3,7 @@ exports.up = function(knex) {
         table.uuid('id').primary().defaultTo(knex.raw("uuid_generate_v4()"))
         table.uuid('id_paciente').references('paciente.id_usuario').onDelete('CASCADE')
         table.uuid('id_medico').references('medico.id_usuario').notNullable().onDelete('CASCADE')
-        table.timestamp('dt_hr_consulta').notNullable()
+        table.timestamp('dt_hr_consulta').defaultTo(knex.fn.now())
         table.text('doenca')
         table.text('motivo_consulta')
         table.integer('tempo_doente')

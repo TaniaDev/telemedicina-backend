@@ -8,7 +8,7 @@ module.exports = {
         try{
             const {id_paciente} = req.params
 
-            const result = await con('prontuario').where({id_paciente})
+            const result = await con('prontuario').where({id_paciente}).orderBy('dt_hr_consulta', 'desc')
         
             return res.status(200).json(result)
         }catch (error) {
