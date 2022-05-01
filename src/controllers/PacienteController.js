@@ -2,7 +2,7 @@ const jwt_decode = require('jwt-decode')
 const con = require('../database')
 
 module.exports = {
-    getPaciente: async (req, res, next) => {
+    getPacienteById: async (req, res, next) => {
         try{
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)

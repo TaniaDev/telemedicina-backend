@@ -71,6 +71,20 @@ module.exports = {
             next(error)
         }
     },
+    updateDadosPessoais: async (req, res, next) => {
+        try {
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+            
+            const { nome, genero, telefone, email } = req.body
+            
+            await con('usuario').update({nome, genero, telefone, email}).where({ id })
+            return res.send()
+        } catch (error) {
+            next(error)
+        }
+    },
     delete: async (req, res, next) => {
         try {
             const { id } = req.params
@@ -164,6 +178,18 @@ module.exports = {
             next(error)
         }
     },
+    getUserById: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const [result] = await con('usuario').where({id})
+            return res.status(200).json(result)
+        }catch(error){  
+            next(error)
+        }
+    },
     getType: async (req, res, next) => {
         try{
             const authHeader = req.headers.authorization
@@ -194,7 +220,6 @@ module.exports = {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
             const id = decode.id
-
             const {cep, numero, complemento, cidade, estado} = req.body
 
             await con('endereco').update({cep, numero, complemento, cidade, estado}).where({id_usuario: id})
