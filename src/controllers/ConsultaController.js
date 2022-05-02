@@ -240,7 +240,14 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
-            const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id })
+            let verify = await con('consulta').select('id_medico').where({id_medico: id})
+
+            let appointments
+            if(verify == ''){
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>=', current)
+            }else{
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>=', current)
+            }
             
             return res.status(200).json(appointments)
         }catch (error) {
@@ -257,9 +264,9 @@ module.exports = {
 
             let appointments
             if(verify == ''){
-                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfDay(current)).andWhere('dt_hr_consulta', '<=', endOfDay(current))
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>=', current).andWhere('dt_hr_consulta', '<=', endOfDay(current))
             }else{
-                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>=', startOfDay(current)).andWhere('dt_hr_consulta', '<=', endOfDay(current))
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>=', current).andWhere('dt_hr_consulta', '<=', endOfDay(current))
             }
 
             return res.status(200).json(appointments)
@@ -277,9 +284,17 @@ module.exports = {
 
             let appointments
             if(verify == ''){
-                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfWeek(current)).andWhere('dt_hr_consulta', '<=', endOfWeek(current))
+                appointments = await con('consulta')
+                                        .where({ id_paciente: id })
+                                        .andWhere('dt_hr_consulta', '>=', startOfWeek(current))
+                                        .andWhere('dt_hr_consulta', '<=', endOfWeek(current))
+                                        .andWhere('dt_hr_consulta', '>=', current)
             }else{
-                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>=', startOfWeek(current)).andWhere('dt_hr_consulta', '<=', endOfWeek(current))
+                appointments = await con('consulta')
+                                        .where({ id_medico: id })
+                                        .andWhere('dt_hr_consulta', '>=', startOfWeek(current))
+                                        .andWhere('dt_hr_consulta', '<=', endOfWeek(current))
+                                        .andWhere('dt_hr_consulta', '>=', current)
             }
          
             return res.status(200).json(appointments)
@@ -317,9 +332,9 @@ module.exports = {
             
             let appointments
             if(verify == ''){
-                appointments = await con('consulta').where({ id_paciente: id }).andWhere('status', 'Cancelado')
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('status', 'Cancelado').andWhere('dt_hr_consulta', '>=', current)
             }else{
-                appointments = await con('consulta').where({ id_medico: id }).andWhere('status', 'Cancelado')
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('status', 'Cancelado').andWhere('dt_hr_consulta', '>=', current)
             }
             
             return res.status(200).json(appointments)
