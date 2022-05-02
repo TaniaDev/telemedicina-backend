@@ -25,6 +25,7 @@ routes
     //Usuário
     .get('/usuario/getType', auth, UsuarioController.getType)
     .post('/cadastrar', UsuarioController.create)    
+    .post('/usuario/createUser', UsuarioController.createUser)    
     .get('/usuario', auth, UsuarioController.read)  
     .put('/usuario/editar', auth, UsuarioController.update)
     .put('/usuario/updateDadosPessoais', auth, UsuarioController.updateDadosPessoais)
@@ -35,10 +36,12 @@ routes
     .get('/usuario/getEmail/:token', UsuarioController.getEmail) 
     .get('/usuario/getUserByEmail/:email', UsuarioController.getUserByEmail) 
     .get('/usuario/getUserById', UsuarioController.getUserById) 
-    .get('/usuario/endereco', auth, UsuarioController.getEndereco)  
+    .post('/usuario/endereco', UsuarioController.createEndereco) 
+    .get('/usuario/endereco', auth, UsuarioController.getEndereco) 
     .put('/usuario/endereco', auth, UsuarioController.updateEndereco)  
 
     //Paciente
+    .post('/paciente', PacienteController.createPaciente)  
     .get('/paciente', auth, patient, PacienteController.getPacienteById)  
     .put('/paciente', auth, patient, PacienteController.updatePaciente)
     .get('/paciente/getPaciente/:id_paciente', PacienteController.getPaciente) 

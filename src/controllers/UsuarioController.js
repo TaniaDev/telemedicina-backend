@@ -29,6 +29,25 @@ module.exports = {
             next(error)
         }
     },
+    createUser: async (req, res, next) => {
+        try {
+            const { nome, dt_nascimento, genero, telefone, email, senha, tipo } = req.body
+            
+            const emailExistente = await con('usuario').where({ email }).select('usuario.email')
+
+            if (emailExistente.length != 0) {
+                return res.status(403).json({ error: 'Usuário já existente com este e-mail'})
+            } else {
+                const senhaHash = await bcrypt.hash(senha, 10);
+
+                const [user] = await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo}).returning('id')
+                let id = user.id
+                return res.status(201).json({id})
+            }
+        } catch (error) {
+            next(error)
+        }
+    },
     read: async (req, res, next) => {
         try {
             const authHeader = req.headers.authorization
@@ -198,6 +217,23 @@ module.exports = {
             const [tipo] = await con('usuario').select('tipo').where({ id: decode.id })
 
             return res.status(200).json(tipo)
+        } catch (error) {
+            next(error)
+        }
+    },
+    createEndereco: async (req, res, next) => {
+        try{
+            const {id_usuario, cep, numero, complemento, cidade, estado} = req.body
+            
+            const userExists = await con('usuario').where({ id: id_usuario })
+
+            if (userExists.length < 1) {
+                return res.status(403).json({ error: 'Usuário não encontrado!'})
+            }
+
+            await con('endereco').insert({id_usuario, cep, numero, complemento, cidade, estado})
+            
+            return res.status(200).json({})
         } catch (error) {
             next(error)
         }
