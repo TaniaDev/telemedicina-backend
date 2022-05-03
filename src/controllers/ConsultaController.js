@@ -1,8 +1,7 @@
 const bcrypt = require('bcryptjs')
 const jwt_decode = require('jwt-decode')
 const con = require('../database')
-const {startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear} = require('date-fns')
-const current = new Date();
+const {endOfDay, startOfWeek, endOfWeek, sub} = require('date-fns')
 
 module.exports = {
     agendarconsulta: async (req, res, next) => {
@@ -240,14 +239,19 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
+            let current = new Date();
+            let limit = sub(current, {hours: 1})
+
             let verify = await con('consulta').select('id_medico').where({id_medico: id})
 
             let appointments
             if(verify == ''){
-                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>=', current)
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>', limit).andWhere('status', 'Agendado')
             }else{
-                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>=', current)
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>', limit).andWhere('status', 'Agendado')
             }
+            
+            appointments.dt_hr_consulta = "2000-05-02T23:10:00.000Z"
             
             return res.status(200).json(appointments)
         }catch (error) {
@@ -260,13 +264,16 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
+            let current = new Date();
+            let limit = sub(current, {hours: 1})
+
             let verify = await con('consulta').select('id_medico').where({id_medico: id})
 
             let appointments
             if(verify == ''){
-                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>=', current).andWhere('dt_hr_consulta', '<=', endOfDay(current))
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>', limit).andWhere('dt_hr_consulta', '<=', endOfDay(current)).andWhere('status', 'Agendado')
             }else{
-                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>=', current).andWhere('dt_hr_consulta', '<=', endOfDay(current))
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>', limit).andWhere('dt_hr_consulta', '<=', endOfDay(current)).andWhere('status', 'Agendado')
             }
 
             return res.status(200).json(appointments)
@@ -280,6 +287,9 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
+            let current = new Date();
+            let limit = sub(current, {hours: 1})
+
             let verify = await con('consulta').select('id_medico').where({id_medico: id})
 
             let appointments
@@ -288,13 +298,15 @@ module.exports = {
                                         .where({ id_paciente: id })
                                         .andWhere('dt_hr_consulta', '>=', startOfWeek(current))
                                         .andWhere('dt_hr_consulta', '<=', endOfWeek(current))
-                                        .andWhere('dt_hr_consulta', '>=', current)
+                                        .andWhere('dt_hr_consulta', '>', limit)
+                                        .andWhere('status', 'Agendado')
             }else{
                 appointments = await con('consulta')
                                         .where({ id_medico: id })
                                         .andWhere('dt_hr_consulta', '>=', startOfWeek(current))
                                         .andWhere('dt_hr_consulta', '<=', endOfWeek(current))
-                                        .andWhere('dt_hr_consulta', '>=', current)
+                                        .andWhere('dt_hr_consulta', '>', limit)
+                                        .andWhere('status', 'Agendado')
             }
          
             return res.status(200).json(appointments)
@@ -307,14 +319,17 @@ module.exports = {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
             const id = decode.id
+
+            let current = new Date();
+            let limit = sub(current, {hours: 1})
             
             let verify = await con('consulta').select('id_medico').where({id_medico: id})
 
             let appointments
             if(verify == ''){
-                appointments = await con('consulta').where({ id_paciente: id }).andWhere('status', 'Agendado')
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('status', 'Agendado').andWhere('dt_hr_consulta', '>', limit)
             }else{
-                appointments = await con('consulta').where({ id_medico: id }).andWhere('status', 'Agendado')
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('status', 'Agendado').andWhere('dt_hr_consulta', '>', limit)
             }
 
             return res.status(200).json(appointments)
@@ -328,13 +343,16 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id = decode.id
 
+            let current = new Date();
+            let limit = sub(current, {hours: 1})
+
             let verify = await con('consulta').select('id_medico').where({id_medico: id})
             
             let appointments
             if(verify == ''){
-                appointments = await con('consulta').where({ id_paciente: id }).andWhere('status', 'Cancelado').andWhere('dt_hr_consulta', '>=', current)
+                appointments = await con('consulta').where({ id_paciente: id }).andWhere('status', 'Cancelado').andWhere('dt_hr_consulta', '>', limit)
             }else{
-                appointments = await con('consulta').where({ id_medico: id }).andWhere('status', 'Cancelado').andWhere('dt_hr_consulta', '>=', current)
+                appointments = await con('consulta').where({ id_medico: id }).andWhere('status', 'Cancelado').andWhere('dt_hr_consulta', '>', limit)
             }
             
             return res.status(200).json(appointments)
