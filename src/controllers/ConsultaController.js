@@ -75,6 +75,18 @@ module.exports = {
             next(error)
         }
     },
+    cleanRecords: async(req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id_medico = decode.id
+
+            await con('disponibilidade_medica').where({id_medico}).del()
+            return res.status(200).json()
+        }catch(error){
+            next(error)
+        }
+    },
     getDisponibilidadeMedica: async (req, res, next) => {
         try{
             const authHeader = req.headers.authorization
