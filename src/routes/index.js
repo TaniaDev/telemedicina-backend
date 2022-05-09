@@ -7,6 +7,7 @@ const AdminController = require('../controllers/AdminController')
 const MedicoController = require('../controllers/MedicoController')
 const PacienteController = require('../controllers/PacienteController')
 const ProntuarioController = require('../controllers/ProntuarioController')
+const ScheduledController = require('../controllers/ScheduledController')
 
 const auth = require('../middlewares/auth')
 const patient = require('../middlewares/patient')
@@ -82,5 +83,9 @@ routes
     //Prontuario
     .get('/prontuario/:id_paciente', auth, doctor, ProntuarioController.getProntuario) 
     .post('/prontuario', auth, doctor, ProntuarioController.createProntuario) 
+
+
+    // CRON
+    .get('/ScheduledController', ScheduledController.sendNotification)
 
 module.exports = routes
