@@ -43,7 +43,9 @@ module.exports = {
                 horasOcupadas.push(consulta.hora)
             })
 
-            const result = await con('disponibilidade_medica').select('horas' ,'dia_semana').where({id_medico})
+            const result = await con('disponibilidade_medica').select('horas', 'dia_da_semana.dia')
+                                .join('dia_da_semana', 'dia_da_semana.id', '=', 'disponibilidade_medica.id_dia_semana')
+                                .where({id_medico})
 
             result.forEach(item => {
                 aux = `${item.horas}:00:00`
@@ -65,11 +67,13 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id_medico = decode.id
 
-            const {horas, dia_semana} = req.body
+            const {horas, dia_selecionado} = req.body
 
             // horas - 1 insert p cada hora
             // dia_semana - Transformar numa string separada por virgula (sem espaço)
-            await con('disponibilidade_medica').insert({ id_medico, horas, dia_semana })
+            const [result] = await con('dia_da_semana').select('id').where({dia: dia_selecionado})
+            let id_dia = result.id
+            await con('disponibilidade_medica').insert({ id_medico, horas, id_dia_semana: id_dia })
             return res.status(200).json()
         }catch(error){
             next(error)
@@ -93,7 +97,9 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id_medico = decode.id
 
-            const result = await con('disponibilidade_medica').select('horas', 'dia_semana').where({id_medico}).orderBy('horas')
+            const result = await con('disponibilidade_medica').select('horas', 'dia_da_semana.dia')
+                                .join('dia_da_semana', 'dia_da_semana.id', '=', 'disponibilidade_medica.id_dia_semana')
+                                .where({id_medico}).orderBy('horas')
             return res.status(200).json(result)
         }catch(error){
             next(error)
@@ -399,7 +405,17 @@ module.exports = {
         }catch (error) {
             next(error)
         }
-    }
+    },
+    getDiasDaSemana: async (req, res, next) => {
+        try {
+            const results = await con('dia_da_semana')
+            return res.status(200).json(results)
+        }
+        catch (error) {
+            next(error)
+        }
+
+    },
 
 
 }

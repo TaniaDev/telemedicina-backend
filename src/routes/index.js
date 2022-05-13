@@ -65,6 +65,7 @@ routes
     .put('/consulta/agendar/:id_consulta', auth, ConsultaController.agendar) 
     .post('/agendarconsulta', auth, ConsultaController.agendarconsulta) 
     .get('/horasdisponiveismedico/:id_medico/:data', auth, ConsultaController.horasdisponiveismedico) 
+    .get('/getDiasDaSemana', auth, ConsultaController.getDiasDaSemana) 
     .post('/definirDisponibilidadeMedica', auth, doctor, ConsultaController.definirDisponibilidadeMedica) 
     .delete('/definirDisponibilidadeMedica', auth, doctor, ConsultaController.cleanRecords) 
     .get('/getDisponibilidadeMedica', auth, doctor, ConsultaController.getDisponibilidadeMedica) 
