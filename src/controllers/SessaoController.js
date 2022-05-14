@@ -18,7 +18,7 @@ module.exports = {
                     id: usuario.id,
                     nome: usuario.nome,
                     tipo: usuario.tipo
-                }, authConfig, {expiresIn: 86400,})
+                }, authConfig, {expiresIn: 3600,})
 
                 if (match) {
                     if(usuario.desativado_em != null){
