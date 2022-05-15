@@ -1,7 +1,5 @@
 const bcrypt = require('bcryptjs')
-const jwt_decode = require('jwt-decode')
 const jwt = require('jsonwebtoken')
-const con = require('../database')
 
 const UsuarioDAO = require('../dao/UsuarioDAO')
 const Usuario = require('../model/Usuario')
@@ -56,15 +54,28 @@ module.exports = {
     },
     obter: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id } = req.usuario
+            
+            const usuario = await usuarioDAO.obterUmPeloId(id)
+            
+            if (!usuario) {
+                return res.status(404).json({ error: 'Usuário não existente'})
+            }
+
+            return res.json(usuario)
+        } catch(error) {
+            next(error)
+        }
+    },
+    obterAdmin: async (req, res, next) => {
+        try {
+            const { id, tipo } = req.usuario
 
             const { id_usuario_admin } = req.body
 
             let id_usuario
 
-            if (decode.tipo === 'Admin') {
+            if (tipo === 'Admin') {
                 id_usuario = id_usuario_admin
             } else {
                 id_usuario = id
@@ -81,11 +92,24 @@ module.exports = {
             next(error)
         }
     },
+    obterUmPeloEmail: async (req, res, next) => {
+        try {
+            const { email } = req.params
+            
+            const usuario = await usuarioDAO.obterUmPeloEmail(email)
+            
+            if (!usuario) {
+                return res.status(404).json({ error: 'Usuário não existente'})
+            }
+
+            return res.json(usuario)
+        } catch(error) {
+            next(error)
+        }
+    },
     atualizar: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id, tipo } = req.usuario
             
             const {
                 id_usuario_admin,
@@ -97,9 +121,9 @@ module.exports = {
                 senha,
             } = req.body
 
-            let id_usuario
+            let id_usuario = ''
 
-            if (decode.tipo === 'Admin') {
+            if (tipo === 'Admin') {
                 id_usuario = id_usuario_admin
             } else {
                 id_usuario = id
@@ -110,14 +134,14 @@ module.exports = {
                 senha = senhaHash
             }
 
-            const usuarioExistente = await usuarioDAO.obterUmPeloId(id)
+            const usuarioExistente = await usuarioDAO.obterUmPeloId(id_usuario)
 
             if (!usuarioExistente) {
                 return res.status(404).json({ error: 'Usuário não existente.' })
             }
 
             await usuarioDAO.atualizar({
-                id,   
+                id: id_usuario,   
                 nome,
                 dt_nascimento,
                 genero,
@@ -133,11 +157,10 @@ module.exports = {
     },
     atualizarEndereco: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id, tipo } = req.usuario
 
             const {
+                id_usuario_admin,
                 cep,
                 logradouro,
                 numero,
@@ -149,7 +172,7 @@ module.exports = {
 
             let id_usuario
 
-            if (decode.tipo === 'Admin') {
+            if (tipo === 'Admin') {
                 id_usuario = id_usuario_admin
             } else {
                 id_usuario = id
@@ -162,7 +185,7 @@ module.exports = {
             }
 
             await usuarioDAO.atualizarEndereco({
-                id,
+                id: id_usuario,
                 cep,
                 logradouro,
                 numero,
@@ -196,9 +219,7 @@ module.exports = {
     },
     desativar: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id } = req.usuario
 
             const usuarioExistente = await usuarioDAO.obterUmPeloId(id)
 
@@ -256,12 +277,13 @@ module.exports = {
     },
     obterUsuarios: async (req, res, next) => {
         try {
-            const { id, page = 1 } = req.query
+            //const { id, page = 1 } = req.query
+            const usuarios = await usuarioDAO.obterTodosUsuarios()
 
-            usuarios = await usuarioDAO.obterTodosUsuarios({
-                id,
-                page
-            })
+            //const countObj = con('usuario').count()
+
+            //const [count] = await countObj
+            //res.header('X-Total-Count', count["count"])
 
             return res.status(200).json(usuarios)
 

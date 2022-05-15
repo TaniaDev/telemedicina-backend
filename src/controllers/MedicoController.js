@@ -1,6 +1,4 @@
-const bcrypt = require('bcryptjs')
 const jwt_decode = require('jwt-decode')
-const con = require('../database')
 
 const MedicoDAO = require('../dao/MedicoDAO')
 const EspecialidadeDAO = require('../dao/EspecialidadeDAO')
@@ -30,17 +28,15 @@ module.exports = {
     },
     obter: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id_usuario = decode.id
+            const { id: id_usuario, tipo } = req.usuario
 
             const { id_medico_admin } = req.body
 
-            let id_medico
+            let id_medico = ''
 
-            if (decode.tipo === 'Admin') {
+            if (tipo === 'Admin') {
                 id_medico = id_medico_admin
-            } else if (decode.tipo === 'Medico') {
+            } else if (tipo === 'Medico') {
                 id_medico = id_usuario
             }
 
@@ -56,11 +52,25 @@ module.exports = {
             next(error)
         }
     },
+    obterPeloParams: async (req, res, next) => {
+        try {
+            const { id_medico } = req.params
+
+            const medico = await medicoDAO.obterMedicoCompleto(id_medico)
+
+            if (!medico){
+                return res.status(404).json({ error: 'Médico não existente' })
+            }
+
+            return res.status(200).json(medico)
+        }
+        catch(error) {
+            next(error)
+        }
+    },
     atualizar: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id_usuario = decode.id
+            const { id: id_usuario, tipo } = req.usuario
 
             const {
                 especialidades,
@@ -70,10 +80,10 @@ module.exports = {
             let id_medico
             let modificado_por
 
-            if (decode.tipo === 'Admin') {
+            if (tipo === 'Admin') {
                 modificado_por = id_usuario
                 id_medico = id_medico_admin
-            } else if (decode.tipo === 'Medico') {
+            } else if (tipo === 'Medico') {
                 id_medico = modificado_por = id_usuario
             }
 
@@ -102,17 +112,15 @@ module.exports = {
     },
     obterMedicoCompleto: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id, tipo } = req.usuario
 
             const { id_medico_admin } = req.body
 
             let id_medico
 
-            if (decode.tipo === 'Admin') {
+            if (tipo === 'Admin') {
                 id_medico = id_medico_admin
-            } else if (decode.tipo === 'Medico') {
+            } else if (tipo === 'Medico') {
                 id_medico = id
             }
 

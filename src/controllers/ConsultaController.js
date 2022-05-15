@@ -1,4 +1,3 @@
-const bcrypt = require('bcryptjs')
 const jwt_decode = require('jwt-decode')
 const con = require('../database')
 
@@ -6,7 +5,6 @@ const Consulta = require('../model/Consulta')
 const ConsultaDAO = require('../dao/ConsultaDAO')
 const EspecialidadeDAO = require('../dao/EspecialidadeDAO')
 
-const getCurrentTime = require('../utils/getCurrentTime')
 const {startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth, startOfYear, endOfYear} = require('date-fns')
 const consultaDAO = new ConsultaDAO()
 const especialidadeDAO = new EspecialidadeDAO()
@@ -113,15 +111,13 @@ module.exports = {
     },
     obterConsultas: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id, tipo } = req.usuario
 
             const { id_usuario_admin } = req.body
 
             let id_usuario
 
-            if (decode.tipo === 'Admin') {
+            if (tipo === 'Admin') {
                 id_usuario = id_usuario_admin
             } else {
                 id_usuario = id
@@ -159,9 +155,7 @@ module.exports = {
     },
     cancelar: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id, tipo } = req.usuario
             
             const { id_consulta } = req.params
 
@@ -170,7 +164,7 @@ module.exports = {
             let id_usuario
             let modificado_por
 
-            if (decode.tipo === 'Admin') {
+            if (tipo === 'Admin') {
                 id_usuario = id_usuario_admin
                 modificado_por = id
             } else {
@@ -196,9 +190,7 @@ module.exports = {
     },
     atualizar: async(req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id_usuario = decode.id
+            const { id: id_usuario, tipo } = req.usuario
 
             const { id_consulta } = req.params
 
@@ -212,9 +204,9 @@ module.exports = {
             let id_medico
             let modificado_por
 
-            if (decode.tipo === 'Medico') {
+            if (tipo === 'Medico') {
                 id_medico = modificado_por = id_usuario
-            } else if (decode.tipo === 'Admin') {
+            } else if (tipo === 'Admin') {
                 id_medico = id_medico_admin
                 modificado_por = id_usuario
             }
@@ -260,9 +252,7 @@ module.exports = {
     },
     getTodayAppointments: async (req, res, next) => {
         try{
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id } = req.usuario
 
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfDay(current)).andWhere('dt_hr_consulta', '<=', endOfDay(current))
 
@@ -277,9 +267,7 @@ module.exports = {
     },
     getWeekAppointments: async (req, res, next) => {
         try{
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id } = req.usuario
 
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('dt_hr_consulta', '>=', startOfWeek(current)).andWhere('dt_hr_consulta', '<=', endOfWeek(current))
 
@@ -294,9 +282,7 @@ module.exports = {
     },
     getScheduledLateAppointments: async (req, res, next) => {
         try{
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id } = req.usuario
 
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('status', 'Agendado')
 
@@ -311,9 +297,7 @@ module.exports = {
     },
     getCanceledLateAppointments: async (req, res, next) => {
         try{
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id } = req.usuario
 
             const appointments = await con('consulta').where({ id_medico: id }).orWhere({id_paciente: id }).andWhere('status', 'Cancelado')
 

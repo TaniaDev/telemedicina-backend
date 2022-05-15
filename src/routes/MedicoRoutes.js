@@ -7,6 +7,7 @@ const MedicoController = require('../controllers/MedicoController')
 MedicoRoutes
     .post('/cadastrar', MedicoController.cadastrar)
     .get('/obter', auth, MedicoController.obter)
+    .get('/obter/:id_medico', auth, doctor, MedicoController.obterPeloParams)
     .get('/obter/completo', auth, doctor, MedicoController.obterMedicoCompleto)
     
     .get('/obterTodos', auth, admin, MedicoController.obterMedicos)

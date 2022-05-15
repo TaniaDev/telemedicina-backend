@@ -32,15 +32,13 @@ module.exports = {
     },
     obter: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id, tipo } = req.usuario
 
             const { id_paciente_admin } = req.body
 
             let id_paciente
 
-            if (decode.tipo === 'Paciente') {
+            if (tipo === 'Paciente') {
                 id_paciente = id
             } else {
                 id_paciente = id_paciente_admin
@@ -59,9 +57,7 @@ module.exports = {
     },
     atualizar: async (req, res, next) => {
         try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
+            const { id, tipo } = req.usuario
 
             const { 
                 peso,
@@ -77,9 +73,9 @@ module.exports = {
 
             let id_paciente
 
-            if (decode.tipo === 'Paciente') {
+            if (tipo === 'Paciente') {
                 id_paciente = id
-            } else if (decode.tipo === 'Admin')  {
+            } else if (tipo === 'Admin')  {
                 id_paciente = id_paciente_admin
             }
 

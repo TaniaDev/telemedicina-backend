@@ -1,10 +1,7 @@
-const jwt_decode = require('jwt-decode')
-const con = require('../database')
-
 const EspecialidadeDAO = require('../dao/EspecialidadeDAO')
 const Especialidade = require('../model/Especialidade')
 const MedicoDAO = require('../dao/MedicoDAO')
-const Medico = require('../model/Medico')
+
 
 let especialidadeDAO = new EspecialidadeDAO()
 let medicoDAO = new MedicoDAO()
