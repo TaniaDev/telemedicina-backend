@@ -48,6 +48,7 @@ module.exports = class UsuarioDAO {
                                 'usuario.genero',
                                 'usuario.telefone',
                                 'usuario.email',
+                                'usuario.tipo',
                                 'endereco.cep',
                                 'endereco.logradouro',
                                 'endereco.bairro',
@@ -101,7 +102,6 @@ module.exports = class UsuarioDAO {
     }
 
     async atualizarEndereco(endereco) {
-        console.log(endereco)
         const {
             id,
             cep,

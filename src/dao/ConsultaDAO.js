@@ -44,12 +44,10 @@ module.exports = class ConsultaDAO {
     }
 
     async obterConsultasPeloUsuario(id) {
-
         const consulta = await con('consulta')
             .select('*')
             .where({ id_paciente: id })
             .orWhere({ id_medico: id })    
-
 
         return consulta
     }

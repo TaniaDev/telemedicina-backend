@@ -32,19 +32,25 @@ module.exports = {
     },
     obter: async (req, res, next) => {
         try {
-            const { id, tipo } = req.usuario
-
-            const { id_paciente_admin } = req.body
-
-            let id_paciente
-
-            if (tipo === 'Paciente') {
-                id_paciente = id
-            } else {
-                id_paciente = id_paciente_admin
-            }
+            const { id } = req.usuario
 
             const paciente = await pacienteDAO.obterUmPacientePeloId(id_paciente)
+
+            if (!paciente) {
+                return res.status(404).json({ error: 'Paciente não existente' })
+            }
+
+            return res.status(200).json(paciente)
+        } catch (error) {
+            next(error)
+        }
+    },
+    obterPeloAdmin: async (req, res, next) => {
+        try {
+
+            const { id } = req.params
+
+            const paciente = await pacienteDAO.obterPacienteCompleto(id)
 
             if (!paciente) {
                 return res.status(404).json({ error: 'Paciente não existente' })
@@ -107,7 +113,7 @@ module.exports = {
             const { id } = req.params
 
             const paciente = await pacienteDAO.obterPacienteCompleto(id)
-            console.log(paciente)
+            //console.log(paciente)
             if (!paciente) {
                 return res.status(404).json({ error: 'Paciente não existente' })
             }

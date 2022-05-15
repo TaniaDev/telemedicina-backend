@@ -28,19 +28,9 @@ module.exports = {
     },
     obter: async (req, res, next) => {
         try {
-            const { id: id_usuario, tipo } = req.usuario
+            const { id } = req.usuario
 
-            const { id_medico_admin } = req.body
-
-            let id_medico = ''
-
-            if (tipo === 'Admin') {
-                id_medico = id_medico_admin
-            } else if (tipo === 'Medico') {
-                id_medico = id_usuario
-            }
-
-            const medico = await medicoDAO.obterUmMedicoPeloId(id_medico)
+            const medico = await medicoDAO.obterUmMedicoPeloId(id)
 
             if (!medico){
                 return res.status(404).json({ error: 'Médico não existente' })
@@ -52,11 +42,11 @@ module.exports = {
             next(error)
         }
     },
-    obterPeloParams: async (req, res, next) => {
+    obterPeloAdmin: async (req, res, next) => {
         try {
-            const { id_medico } = req.params
+            const { id } = req.params
 
-            const medico = await medicoDAO.obterMedicoCompleto(id_medico)
+            const medico = await medicoDAO.obterMedicoCompleto(id)
 
             if (!medico){
                 return res.status(404).json({ error: 'Médico não existente' })
@@ -112,19 +102,9 @@ module.exports = {
     },
     obterMedicoCompleto: async (req, res, next) => {
         try {
-            const { id, tipo } = req.usuario
+            const { id } = req.usuario
 
-            const { id_medico_admin } = req.body
-
-            let id_medico
-
-            if (tipo === 'Admin') {
-                id_medico = id_medico_admin
-            } else if (tipo === 'Medico') {
-                id_medico = id
-            }
-
-            const medico = await medicoDAO.obterMedicoCompleto(id_medico)
+            const medico = await medicoDAO.obterMedicoCompleto(id)
 
             return res.status(200).json(medico)
         }

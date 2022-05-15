@@ -41,7 +41,7 @@ module.exports = {
 
             //Verifica se o horário selecionado já está sendo usado para o médico selecionado
             const consultaExistente = await consultaDAO.verificarDataHorarioExistente({ id_medico, dt_hr_consulta })
-            console.log(consultaExistente)
+            //console.log(consultaExistente)
             if (consultaExistente.length) {
                 return res.status(403).json({ error: 'A data para este Médico já está agendada.' })
             }
@@ -111,19 +111,25 @@ module.exports = {
     },
     obterConsultas: async (req, res, next) => {
         try {
-            const { id, tipo } = req.usuario
+            const { id } = req.usuario
 
-            const { id_usuario_admin } = req.body
+            const consultas = await consultaDAO.obterConsultasPeloUsuario({ id })
 
-            let id_usuario
-
-            if (tipo === 'Admin') {
-                id_usuario = id_usuario_admin
-            } else {
-                id_usuario = id
+            if (!consultas) {
+                return res.status(404).json({ error: 'Consultas não encontradas.' })
             }
 
-            const consultas = await consultaDAO.obterConsultasPeloUsuario({ id_usuario })
+            return res.status(200).json(consultas)
+        }
+        catch(error) {
+            next(error)
+        }
+
+    },
+    obterConsultasPeloAdmin: async (req, res, next) => {
+        try {
+            const { id } = req.params
+            const consultas = await consultaDAO.obterConsultasPeloUsuario(id)
 
             if (!consultas) {
                 return res.status(404).json({ error: 'Consultas não encontradas.' })

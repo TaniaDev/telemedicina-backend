@@ -67,21 +67,12 @@ module.exports = {
             next(error)
         }
     },
-    obterAdmin: async (req, res, next) => {
+    obterPeloAdmin: async (req, res, next) => {
         try {
-            const { id, tipo } = req.usuario
 
-            const { id_usuario_admin } = req.body
-
-            let id_usuario
-
-            if (tipo === 'Admin') {
-                id_usuario = id_usuario_admin
-            } else {
-                id_usuario = id
-            }
+            const { id } = req.params
             
-            const usuario = await usuarioDAO.obterUmPeloId(id_usuario)
+            const usuario = await usuarioDAO.obterUmPeloId(id)
             
             if (!usuario) {
                 return res.status(404).json({ error: 'Usuário não existente'})
