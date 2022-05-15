@@ -3,6 +3,36 @@ const jwt_decode = require('jwt-decode')
 const con = require('../database')
 
 module.exports = {
+    createDoctor: async (req, res, next) => {
+        try {
+            const {id_usuario, crm} = req.body
+            await con('medico').insert({id_usuario, crm})
+            return res.status(201).json()
+        } catch (error) {
+            next(error)
+        }
+    },
+    createDoctorSpecialty: async (req, res, next) => {
+        try {
+            const {id_medico, id_especialidade} = req.body
+
+            const medico = await con('medico').where({id_usuario: id_medico})
+            const especialidade = await con('especialidade').where({id: id_especialidade})
+
+            if(medico == '') {
+                return res.status(404).json({error: 'Médico não existe!'})
+            }
+
+            if(especialidade == '') {
+                return res.status(404).json({error: 'Especialidade não existe!'})
+            }
+
+            await con('medico_especialidade').insert({id_medico, id_especialidade})
+            return res.status(201).json()
+        } catch (error) {
+            next(error)
+        }
+    },
     getAllSpecialties: async (req, res, next) => {
         try {
             const specialties = await con('especialidade')

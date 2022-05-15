@@ -31,7 +31,7 @@ module.exports = {
     },
     createUser: async (req, res, next) => {
         try {
-            const { nome, dt_nascimento, genero, telefone, email, senha, tipo } = req.body
+            const { nome, dt_nascimento, genero, telefone, email, senha, tipo, aguardando_validacao } = req.body
             
             const emailExistente = await con('usuario').where({ email }).select('usuario.email')
 
@@ -40,7 +40,7 @@ module.exports = {
             } else {
                 const senhaHash = await bcrypt.hash(senha, 10);
 
-                const [user] = await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo}).returning('id')
+                const [user] = await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo, aguardando_validacao}).returning('id')
                 let id = user.id
                 return res.status(201).json({id})
             }

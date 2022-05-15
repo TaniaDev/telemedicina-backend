@@ -48,6 +48,8 @@ routes
     .get('/paciente/getPaciente/:id_paciente', PacienteController.getPaciente) 
 
     //Médico
+    .post('/medico/createDoctor', MedicoController.createDoctor)
+    .post('/medico/createDoctorSpecialty', MedicoController.createDoctorSpecialty)
     .get('/medico/especialidades', MedicoController.getAllSpecialties)
     .get('/medico/getDoctors', MedicoController.getDoctors)
     .get('/medico/getDoctorsBySpecialty/:id_specialty', MedicoController.getDoctorsBySpecialty)
