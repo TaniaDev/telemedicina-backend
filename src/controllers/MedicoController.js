@@ -89,6 +89,17 @@ module.exports = {
             next(error)
         }
     },
+    getNewDoctors: async (req, res, next) => {
+        try{
+            const results = await con('usuario').select('*')
+                            .join('medico', 'medico.id_usuario', '=', 'usuario.id')
+                            .where({tipo: 'Medico'}).andWhere({aguardando_validacao: 1})
+            
+            return res.status(200).json(results)
+        } catch (error) {
+            next(error)
+        }
+    },
     getDoctor: async (req, res, next) => {
         try{
             const {id_medico} = req.params
@@ -117,6 +128,26 @@ module.exports = {
             next(error)
         }
     },
+    validarMedico: async (req, res, next) => {
+        try{
+            const {id_medico} = req.params
+
+            await con('usuario').update({'aguardando_validacao': null}).where({id: id_medico})
+            return res.status(200).json()
+        } catch (error) {
+            next(error)
+        }
+    },
+    delMedicoEspecialidade: async (req, res, next) => {
+        try{
+            const {id_medico, id_especialidade} = req.params
+
+            await con('medico_especialidade').where({id_medico}).andWhere({id_especialidade}).del()
+            return res.status(200).json()
+        } catch (error) {
+            next(error)
+        }
+    },
     getSpecialtie: async (req, res, next) => {
         try{
             const {id_especialidade} = req.params
@@ -140,6 +171,14 @@ module.exports = {
             }
 
             const result = await con('medico_especialidade').select('*').join('especialidade', 'especialidade.id', '=', 'medico_especialidade.id_especialidade').where({id_medico})
+            return res.status(200).json(result)
+        } catch (error) {
+            next(error)
+        }
+    },
+    getSpecialityByDoctor: async (req, res, next) => {
+        try{
+            const result = await con('medico_especialidade').select('*').join('especialidade', 'especialidade.id', '=', 'medico_especialidade.id_especialidade')
             return res.status(200).json(result)
         } catch (error) {
             next(error)
