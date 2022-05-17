@@ -81,6 +81,7 @@ routes
     .put('/consulta/changeDate', auth, ConsultaController.changeDate)
     .post('/consulta/criar', auth, ConsultaController.create)
     .get('/consultas/getMyAppointments/all', ConsultaController.getMyAppointments)
+    .get('/consultas/getAppointments', ConsultaController.getAppointments)
     .get('/consultas/getMyAppointments/today', ConsultaController.getTodayAppointments)
     .get('/consultas/getMyAppointments/week', ConsultaController.getWeekAppointments)
     .get('/consultas/getMyAppointments/scheduled', ConsultaController.getScheduledLateAppointments)

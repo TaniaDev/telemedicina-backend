@@ -276,6 +276,23 @@ module.exports = {
             next(error)
         }
     },
+    getAppointments: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id_paciente = decode.id
+
+            appointments = await con('consulta').select('consulta.dt_hr_consulta', 'consulta.status', 'usuario.nome as medico', 'especialidade.nome as especialidade')
+                                    .join('usuario', 'usuario.id', '=', 'consulta.id_medico') 
+                                    .join('especialidade', 'especialidade.id', '=', 'consulta.id_especialidade') 
+                                    .where({ 'consulta.id_paciente': id_paciente })
+                                    .orderBy('consulta.dt_hr_consulta')
+    
+            return res.status(200).json(appointments)
+        }catch (error) {
+            next(error)
+        }
+    },
     getTodayAppointments: async (req, res, next) => {
         try{
             const authHeader = req.headers.authorization
