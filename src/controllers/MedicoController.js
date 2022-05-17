@@ -93,7 +93,7 @@ module.exports = {
         try{
             const results = await con('usuario').select('*')
                             .join('medico', 'medico.id_usuario', '=', 'usuario.id')
-                            .where({tipo: 'Medico'}).andWhere({aguardando_validacao: 1})
+                            .where({'usuario.tipo': 'Medico'}).andWhere({'usuario.aguardando_validacao': 1})
             
             return res.status(200).json(results)
         } catch (error) {
@@ -133,6 +133,16 @@ module.exports = {
             const {id_medico} = req.params
 
             await con('usuario').update({'aguardando_validacao': null}).where({id: id_medico})
+            return res.status(200).json()
+        } catch (error) {
+            next(error)
+        }
+    },
+    reprovarMedico: async (req, res, next) => {
+        try{
+            const {id_medico, nome, email} = req.params
+            require('../modules/failDoctor')(nome, email)
+            await con('usuario').where({id: id_medico}).del()
             return res.status(200).json()
         } catch (error) {
             next(error)
