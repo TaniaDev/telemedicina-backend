@@ -276,7 +276,7 @@ module.exports = {
             next(error)
         }
     },
-    getAppointments: async (req, res, next) => {
+    getPatientAppointments: async (req, res, next) => {
         try{
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
@@ -286,6 +286,23 @@ module.exports = {
                                     .join('usuario', 'usuario.id', '=', 'consulta.id_medico') 
                                     .join('especialidade', 'especialidade.id', '=', 'consulta.id_especialidade') 
                                     .where({ 'consulta.id_paciente': id_paciente })
+                                    .orderBy('consulta.dt_hr_consulta')
+    
+            return res.status(200).json(appointments)
+        }catch (error) {
+            next(error)
+        }
+    },
+    getDoctorAppointments: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id_medico = decode.id
+
+            appointments = await con('consulta').select('consulta.dt_hr_consulta', 'consulta.status', 'usuario.nome as paciente', 'especialidade.nome as especialidade')
+                                    .join('usuario', 'usuario.id', '=', 'consulta.id_paciente') 
+                                    .join('especialidade', 'especialidade.id', '=', 'consulta.id_especialidade') 
+                                    .where({ 'consulta.id_medico': id_medico })
                                     .orderBy('consulta.dt_hr_consulta')
     
             return res.status(200).json(appointments)
