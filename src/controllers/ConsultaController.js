@@ -201,21 +201,11 @@ module.exports = {
             const { id_consulta } = req.params
 
             const {
-                id_medico_admin,
+                id_medico,
                 id_paciente,
                 id_especialidade,
                 dt_hr_consulta
             } = req.body
-
-            let id_medico
-            let modificado_por
-
-            if (tipo === 'Medico') {
-                id_medico = modificado_por = id_usuario
-            } else if (tipo === 'Admin') {
-                id_medico = id_medico_admin
-                modificado_por = id_usuario
-            }
 
             const consulta = await consultaDAO.obterUmaConsultaPeloId(id_consulta)
 
@@ -240,19 +230,6 @@ module.exports = {
 
             return res.status(200).json({ msg: 'Consulta atualizada com sucesso! '})
         } catch(error) {
-            next(error)
-        }
-    },
-    deletar: async (req, res, next) => {
-        try {
-            const { id } = req.params
-    
-            await con('consulta')
-            .where({ id })
-            .del()
-    
-            return res.send()
-        } catch (error) {
             next(error)
         }
     },

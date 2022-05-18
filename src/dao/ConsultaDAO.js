@@ -52,11 +52,11 @@ module.exports = class ConsultaDAO {
         return consulta
     }
 
-    async obterUmaConsultaPeloId(id_consulta) {
+    async obterUmaConsultaPeloId(id) {
 
         const consulta = await con('consulta')
             .select('*')
-            .where({ id: id_consulta })
+            .where({ id })
 
         return consulta
     }

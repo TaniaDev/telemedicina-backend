@@ -62,9 +62,9 @@ module.exports = {
                 return res.status(404).json({ error: 'Médico não existente.' })
             }
 
-            const medicos = await medicoDAO.obterMedicosPelaEspecialidade(id_especialidade)
+            const especialidades = await especialidadeDAO.obterEspecialidadesPeloMedico(id_medico)
 
-            return res.status(200).json(medicos)
+            return res.status(200).json(especialidades)
         } catch (error) {
             next(error)
         }

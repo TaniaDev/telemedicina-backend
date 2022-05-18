@@ -34,7 +34,7 @@ module.exports = {
         try {
             const { id } = req.usuario
 
-            const paciente = await pacienteDAO.obterUmPacientePeloId(id_paciente)
+            const paciente = await pacienteDAO.obterUmPacientePeloId(id)
 
             if (!paciente) {
                 return res.status(404).json({ error: 'Paciente não existente' })
@@ -125,7 +125,19 @@ module.exports = {
     },
     obterPacientes: async (req, res, next) => {
         try {
-                const pacientes = await medicoDAO.obterTodosPacientes()
+                const pacientes = await pacienteDAO.obterTodosPacientes()
+
+                return res.status(200).json(pacientes)
+                
+        } catch(error) {
+            next(error)
+        }
+    },
+    obterPacientesPeloMedico: async (req, res, next) => {
+        try {
+                const { id_medico } = req.params
+
+                const pacientes = await pacienteDAO.obterPacientesPeloMedico(id_medico)
 
                 return res.status(200).json(pacientes)
                 

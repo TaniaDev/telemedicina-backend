@@ -52,7 +52,7 @@ module.exports = class PacienteDAO {
                                 )
                                 .from('usuario')
                                 .join('paciente', { 'usuario.id': 'paciente.id_usuario' })
-                                .andWhere({ id })
+                                .andWhere('paciente.id_usuario', id)
                                 .limit(1)
         
         return paciente
@@ -87,11 +87,24 @@ module.exports = class PacienteDAO {
     }
 
     async obterTodosPacientes() {
-
         const pacientes = await con('paciente').select('*')
 
-        return pacientes
+        return pacientes   
+    }
 
-        
+    async obterPacientesPeloMedico(id) {
+        const pacientes = await con.select(
+                            'usuario.nome',
+                            'usuario.dt_nascimento',
+                            'usuario.genero',
+                            'usuario.telefone'
+                        )
+                        .from('usuario')
+                        .innerJoin('paciente', 'usuario.id', '=', 'paciente.id_usuario')
+                        .innerJoin('consulta', 'paciente.id_usuario', '=', 'consulta.id_paciente')
+                        .innerJoin('medico', 'consulta.id_medico', '=', 'medico.id_usuario')
+                        .where('medico.id_usuario', id)
+
+        return pacientes      
     }
 }

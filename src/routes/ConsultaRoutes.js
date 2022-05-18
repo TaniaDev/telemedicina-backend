@@ -9,13 +9,12 @@ const ConsultaController = require('../controllers/ConsultaController')
 
 ConsultaRoutes
     .post('/criar', auth, ConsultaController.criar)
-    .put('/agendar/:id_consulta', auth, patient, ConsultaController.agendar)
+    .put('/agendar/:id_consulta', auth, ConsultaController.agendar)
     .get('/obter', auth, ConsultaController.obterConsultas)
     .get('/obter_admin/:id', auth, admin, ConsultaController.obterConsultasPeloAdmin)  
     .get('/obter/:id_consulta', auth, ConsultaController.obterUmaConsultaPeloId)   
     .put('/cancelar/:id_consulta', auth, ConsultaController.cancelar)
     .put('/editar/:id_consulta', auth, admin, doctor, ConsultaController.atualizar)
-    .delete('/deletar/:id', auth, admin, ConsultaController.deletar)
     
     .get('/getMyAppointments/today', ConsultaController.getTodayAppointments)
     .get('/getMyAppointments/week', ConsultaController.getWeekAppointments)

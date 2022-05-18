@@ -8,7 +8,7 @@ EspecialidadeRoutes
     .get('/obter/:id', auth, EspecialidadeController.obterUmaEspecialidade)
     .get('/obter', auth, EspecialidadeController.obterEspecialidades)
 
-    .get('/obterEspecialidadesPeloMedico/:id_medico', auth, EspecialidadeController.obterEspecialidadesPeloMedico)
+    .get('/obter_medico/:id_medico', auth, EspecialidadeController.obterEspecialidadesPeloMedico)
 module.exports = EspecialidadeRoutes
     
     
