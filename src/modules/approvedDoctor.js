@@ -2,7 +2,7 @@
 const nodemailer = require('nodemailer')
 const { host, port, user, pass } = require('../config/mail.json')
 
-module.exports = (email, nome, time, precision) => {
+module.exports = (nome, email) => {
     
     const smtpTransport = nodemailer.createTransport({
         host,
@@ -13,8 +13,8 @@ module.exports = (email, nome, time, precision) => {
     const mail = {
         from: "Telemedicina <fatec.telemedicina@gmail.com>",
         to: email,
-        subject: `${nome}, Faltam Menos de ${time} ${precision} para sua Consulta`,
-        html: `Sua Consulta se aproxima, fique Atento!`
+        subject: `Dr(a) ${nome}, seu cadastro foi aprovado!`,
+        html: `<p align="center">${nome}, Você já pode efetuar <a href="localhost:3000">Login</a></p>`
     }
     
     return new Promise((resolve, reject) => {

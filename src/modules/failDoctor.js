@@ -13,8 +13,8 @@ module.exports = (nome, email) => {
     const mail = {
         from: "Telemedicina <fatec.telemedicina@gmail.com>",
         to: email,
-        subject: `[TELEMED] ${nome}, Cadastro Recusado`,
-        html: `<p>${nome}, lamentamos o inconveniente, mas seu cadastro foi recusado.</p><p>Refaça-o</p>`
+        subject: `Dr(a) ${nome}, seu cadastro foi recusado`,
+        html: `<p align="center">${nome}, lamentamos o inconveniente, mas seu cadastro foi recusado.</p><p align="center"><a href="localhost:3000/cadastro">Refaça-o</a></p>`
     }
     
     return new Promise((resolve, reject) => {

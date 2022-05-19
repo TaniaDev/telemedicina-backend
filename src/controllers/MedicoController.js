@@ -130,8 +130,8 @@ module.exports = {
     },
     validarMedico: async (req, res, next) => {
         try{
-            const {id_medico} = req.params
-
+            const {id_medico, nome, email} = req.params
+            require('../modules/approvedDoctor')(nome, email)
             await con('usuario').update({'aguardando_validacao': null}).where({id: id_medico})
             return res.status(200).json()
         } catch (error) {

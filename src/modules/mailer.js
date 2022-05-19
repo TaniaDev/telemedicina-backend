@@ -14,7 +14,7 @@ module.exports = (email, nome, token) => {
         from: "Telemedicina <fatec.telemedicina@gmail.com>",
         to: email,
         subject: `${nome}, agora você pode redefinir a sua senha`,
-        html: `<p>Você esqueceu sua senha? Não tem problema, acesse esse <a href="http://localhost:3000/usuario/redefinir_senha/${token}">link</a>.</p>`
+        html: `<p align="center">Você esqueceu sua senha?</p> <p align="center">Não tem problema, acesse esse <a href="http://localhost:3000/usuario/redefinir_senha/${token}">link</a>.</p>`
     }
     
     return new Promise((resolve, reject) => {

@@ -133,8 +133,8 @@ module.exports = {
     forgot_password: async(req, res, next) => {
         try{
             const { nome, email } = req.body
-
-            const usuario = await con('usuario').where({email})
+            
+            const [usuario] = await con('usuario').where({email})
             if(!usuario){
                 return res.status(400).send({error: 'Usuário não encontrado!'})
             }
@@ -145,7 +145,7 @@ module.exports = {
 
             await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
 
-            require('../modules/mailer')(email, nome, token)
+            require('../modules/mailer')(email, usuario.nome, token)
 
             return res.status(200).send({token, email})
         } catch (error) {

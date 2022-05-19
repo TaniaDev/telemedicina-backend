@@ -55,7 +55,7 @@ routes
     .get('/medico/getNewDoctors', MedicoController.getNewDoctors)
     .get('/medico/getDoctorsBySpecialty/:id_specialty', MedicoController.getDoctorsBySpecialty)
     .delete('/medico/medico_especialidade/:id_medico/:id_especialidade', MedicoController.delMedicoEspecialidade)
-    .put('/medico/validar_medico/:id_medico', MedicoController.validarMedico)
+    .put('/medico/validar_medico/:id_medico/:nome/:email', MedicoController.validarMedico)
     .delete('/medico/reprovarMedico/:id_medico/:nome/:email', MedicoController.reprovarMedico)
     .get('/medico/getDoctor/:id_medico', MedicoController.getDoctor)
     .get('/medico/getSpecialtie/:id_especialidade', MedicoController.getSpecialtie)
