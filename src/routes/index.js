@@ -63,6 +63,7 @@ routes
     .get('/medico/getSpecialityByDoctor', MedicoController.getSpecialityByDoctor)
     .post('/medico/registerSpecialty', doctor, MedicoController.registerSpecialty)
     .get('/medico/disponibilidade', MedicoController.doctorAvailability)
+    .get('/medico/verifyapproval/:email', MedicoController.verifyApproval)
 
     //Admin
     .get('/admin', auth, admin, AdminController.index)
