@@ -223,7 +223,8 @@ module.exports = {
     },
     createEndereco: async (req, res, next) => {
         try{
-            const {id_usuario, cep, numero, complemento, cidade, estado} = req.body
+            const {id_usuario, cep, logradouro, numero, complemento, cidade, estado} = req.body
+            console.log(logradouro)
             
             const userExists = await con('usuario').where({ id: id_usuario })
 
@@ -231,7 +232,7 @@ module.exports = {
                 return res.status(403).json({ error: 'Usuário não encontrado!'})
             }
 
-            await con('endereco').insert({id_usuario, cep, numero, complemento, cidade, estado})
+            await con('endereco').insert({id_usuario, cep, logradouro, numero, complemento, cidade, estado})
             
             return res.status(200).json({})
         } catch (error) {
