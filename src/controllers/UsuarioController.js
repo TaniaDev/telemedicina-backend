@@ -224,7 +224,6 @@ module.exports = {
     createEndereco: async (req, res, next) => {
         try{
             const {id_usuario, cep, logradouro, numero, complemento, cidade, estado} = req.body
-            console.log(logradouro)
             
             const userExists = await con('usuario').where({ id: id_usuario })
 
