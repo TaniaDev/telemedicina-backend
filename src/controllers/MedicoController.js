@@ -76,12 +76,13 @@ module.exports = {
             const {id_especialidade} = req.body
 
             if(id_especialidade == null){
-                const results = await con('medico')
+                const results = await con('medico').join('usuario', 'usuario.id', '=', 'medico.id_usuario') 
                 return res.status(200).json(results)
             }else{
                 const results = await con('medico_especialidade').select('*')
                     .join('medico', 'medico.id_usuario', '=', 'medico_especialidade.id_medico')
                     .join('especialidade', 'especialidade.id', '=', 'medico_especialidade.id_especialidade') 
+                    .join('usuario', 'usuario.id', '=', 'medico_especialidade.id_medico') 
                     .where({'medico_especialidade.id_especialidade': id_especialidade})
                 return res.status(200).json(results)
             }
@@ -122,7 +123,10 @@ module.exports = {
                 return res.status(500).json()
             }
 
-            const result = await con('medico_especialidade').select('*').join('medico', 'medico.id_usuario', '=', 'medico_especialidade.id_medico').where({'id_especialidade': id_specialty})
+            const result = await con('medico_especialidade').select('*')
+                            .join('medico', 'medico.id_usuario', '=', 'medico_especialidade.id_medico')
+                            .join('usuario', 'usuario.id', '=', 'medico_especialidade.id_medico')
+                            .where({'id_especialidade': id_specialty})
             return res.status(200).json(result)
         } catch (error) {
             next(error)
@@ -206,6 +210,15 @@ module.exports = {
         }catch (error) {
             next(error)
         }
-    }
+    },
+    verifyApproval: async (req, res, next) => {
+        try{
+            const {email} = req.params
+            const [result] = await con('usuario').select('aguardando_validacao').where({email})
+            return res.status(200).json(result)
+        }catch (error) {
+            next(error)
+        }
+    },
 
 }

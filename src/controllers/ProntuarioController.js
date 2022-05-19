@@ -8,8 +8,11 @@ module.exports = {
         try{
             const {id_paciente} = req.params
 
-            const result = await con('prontuario').where({id_paciente}).orderBy('dt_hr_consulta', 'desc')
-        
+            const result = await con('prontuario').select('*', 'medico.nome as medico', 'paciente.nome as paciente')
+                                .join('usuario as paciente', 'paciente.id', '=', 'prontuario.id_paciente') 
+                                .join('usuario as medico', 'medico.id', '=', 'prontuario.id_medico') 
+                                .where({'prontuario.id_paciente' : id_paciente})
+                                .orderBy('dt_hr_consulta', 'desc')
             return res.status(200).json(result)
         }catch (error) {
             next(error)
