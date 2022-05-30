@@ -1,130 +1,140 @@
-const bcrypt = require('bcryptjs')
 const jwt_decode = require('jwt-decode')
-const con = require('../database')
+
+const MedicoDAO = require('../dao/MedicoDAO')
+const EspecialidadeDAO = require('../dao/EspecialidadeDAO')
+const Medico = require('../model/Medico')
+
+let medicoDAO = new MedicoDAO()
+let especialidadeDAO = new EspecialidadeDAO()
 
 module.exports = {
-    getAllSpecialties: async (req, res, next) => {
+    cadastrar: async (req, res, next) => {
         try {
-            const specialties = await con('especialidade')
-            return res.status(201).json(specialties)
+            const { 
+                id,
+                crm,
+                especialidades
+             } = req.body
+            
+            const medico = new Medico({ id, crm, especialidades })
 
-        } catch (error) {
+            await medicoDAO.cadastrarMedico(medico)
+
+            return res.status(201).json({ msg: 'Médico cadastrado com sucesso!' })
+        }
+        catch(error) {
             next(error)
         }
     },
-    registerSpecialty: async(req, res, next) => {
+    obter: async (req, res, next) => {
         try {
-            const {id_especialidade} = req.body
+            const { id } = req.usuario
 
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id_medico = decode.id
+            const medico = await medicoDAO.obterUmMedicoPeloId(id)
 
-            const especialidade = await con('especialidade').where({id: id_especialidade})
-
-            if(especialidade == '') {
-                return res.status(404).json({error: 'Especialidade não existe!'})
+            if (!medico){
+                return res.status(404).json({ error: 'Médico não existente' })
             }
 
-            const results = await con('medico_especialidade').where({id_medico})
+            return res.status(200).json(medico)
+        }
+        catch(error) {
+            next(error)
+        }
+    },
+    obterPeloAdmin: async (req, res, next) => {
+        try {
+            const { id } = req.params
 
-            results.map((result, index) => {
-                if(result.id_especialidade == id_especialidade){
-                    return res.status(500).json({error: 'Essa especialidade já foi atrelada a esse médico!'})
+            const medico = await medicoDAO.obterMedicoCompleto(id)
+
+            if (!medico){
+                return res.status(404).json({ error: 'Médico não existente' })
+            }
+
+            return res.status(200).json(medico)
+        }
+        catch(error) {
+            next(error)
+        }
+    },
+    atualizar: async (req, res, next) => {
+        try {
+            const { id: id_usuario, tipo } = req.usuario
+
+            const {
+                especialidades,
+                id_medico_admin
+            } = req.body
+
+            let id_medico
+            let modificado_por
+
+            if (tipo === 'Admin') {
+                modificado_por = id_usuario
+                id_medico = id_medico_admin
+            } else if (tipo === 'Medico') {
+                id_medico = modificado_por = id_usuario
+            }
+
+            especialidades.map(async (result, index) => {
+                let especialidade = await especialidadeDAO.obterUmaEspecialidade(result)
+                if(especialidade === null) {
+                    return res.status(404).json({ error: 'Especialidade não existente.' })
                 }
             })
+
+            const medicoEspecialidade = await medicoDAO(id)
+            medicoEspecialidade.map((result, index) => {
+                if(result.id_especialidade == id_especialidade){
+                    return res.status(500).json({ error: 'Essa especialidade já foi atrelada a este Médico!' })
+                }
+            })
+
+            await medicoDAO.atualizarMedico({ id_medico, especialidades, modificado_por })
             
-            await con('medico_especialidade').insert({id_medico, id_especialidade})
-            
-            return res.status(201).json()
+            return res.status(200).json({ msg: 'Médico atualizado com sucesso!'})
+
         } catch (error) {
             next(error)
         }
+        
     },
-    getDoctors: async (req, res, next) => {
-        try{
-            const {id_especialidade} = req.body
+    obterMedicoCompleto: async (req, res, next) => {
+        try {
+            const { id } = req.usuario
 
-            if(id_especialidade == null){
-                const results = await con('medico')
-                return res.status(200).json(results)
-            }else{
-                const results = await con('medico_especialidade').select('*')
-                    .join('medico', 'medico.id_usuario', '=', 'medico_especialidade.id_medico')
-                    .join('especialidade', 'especialidade.id', '=', 'medico_especialidade.id_especialidade') 
-                    .where({'medico_especialidade.id_especialidade': id_especialidade})
-                return res.status(200).json(results)
-            }
-        } catch (error) {
+            const medico = await medicoDAO.obterMedicoCompleto(id)
+
+            return res.status(200).json(medico)
+        }
+        catch(error) {
             next(error)
         }
     },
-    getDoctor: async (req, res, next) => {
-        try{
-            const {id_medico} = req.params
-            
-            if(id_medico == null){
-                return res.status(404).json()
-            }
+    obterMedicos: async (req, res, next) => {
+        try {
+                const medicos = await medicoDAO.obterTodosMedicos()
 
-            const [result] = await con('usuario').select('*').join('medico', 'medico.id_usuario', '=', 'usuario.id').where({'id_usuario': id_medico})
-            return res.status(200).json(result)
-        } catch (error) {
+                return res.status(200).json(medicos)
+
+        } catch(error) {
             next(error)
         }
     },
-    getDoctorsBySpecialty: async (req, res, next) => {
-        try{
-            const {id_specialty} = req.params
+    obterMedicosPelaEspecialidade: async (req, res, next) => {
+        try {
+            const { id_especialidade } = req.params
 
-            if(id_specialty == null){
-                return res.status(500).json()
+            const especialidade = await especialidadeDAO.obterUmaEspecialidade(id_especialidade)
+            if(!especialidade){
+                return res.status(404).json({ error: 'Especialidade não existente.' })
             }
 
-            const result = await con('medico_especialidade').select('*').join('medico', 'medico.id_usuario', '=', 'medico_especialidade.id_medico').where({'id_especialidade': id_specialty})
-            return res.status(200).json(result)
+            const medicos = await medicoDAO.obterMedicosPelaEspecialidade(id_especialidade)
+
+            return res.status(200).json(medicos)
         } catch (error) {
-            next(error)
-        }
-    },
-    getSpecialtie: async (req, res, next) => {
-        try{
-            const {id_especialidade} = req.params
-            
-            if(id_especialidade == null){
-                return res.status(404).json()
-            }
-
-            const [result] = await con('especialidade').where({'id': id_especialidade})
-            return res.status(200).json(result)
-        } catch (error) {
-            next(error)
-        }
-    },
-    getSpecialtieByDoctor: async (req, res, next) => {
-        try{
-            const {id_medico} = req.params
-
-            if(id_medico == null){
-                return res.status(500).json()
-            }
-
-            const result = await con('medico_especialidade').select('*').join('especialidade', 'especialidade.id', '=', 'medico_especialidade.id_especialidade').where({id_medico})
-            return res.status(200).json(result)
-        } catch (error) {
-            next(error)
-        }
-    },
-    doctorAvailability: async (req, res, next) => {
-        try{
-            //Array contendo as horas (9,10,11,13,14,15,16,17,18)
-
-            //Almoço - subtrair o horario de inicio e horario final do almoço do array das horas
-
-            const {id_medico} = req.body
-            const results = await con('disponibilidade_medica').where({id_medico})
-            return res.status(200).json({results})
-        }catch (error) {
             next(error)
         }
     }

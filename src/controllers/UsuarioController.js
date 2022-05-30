@@ -1,206 +1,284 @@
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto')
-const jwt_decode = require('jwt-decode')
-const con = require('../database')
+const bcrypt = require('bcryptjs')
+const jwt = require('jsonwebtoken')
+
+const UsuarioDAO = require('../dao/UsuarioDAO')
+const Usuario = require('../model/Usuario')
+
+const sendResetPasswordEmail = require('../utils/sendResetPasswordEmail')
+
+const authConfig = process.env.SECRET_API
+
+let usuarioDAO = new UsuarioDAO()
 
 module.exports = {
-    create: async (req, res, next) => {
+    cadastrar: async (req, res, next) => {
         try {
-            const { nome, dt_nascimento, genero, telefone, email, senha, tipo, cep, numero, complemento, cidade, estado, peso, altura, alergia, doenca, vicio, medicamento, crm} = req.body
-            const emailExistente = await con('usuario').where({ email }).select('usuario.email')
+            const {
+                    nome,
+                    dt_nascimento,
+                    genero,
+                    telefone,
+                    email,
+                    senha,
+                    tipo,
+                    cep,
+                    logradouro,
+                    bairro,
+                    numero,
+                    complemento,
+                    cidade,
+                    estado
+                } = req.body
 
-            if (emailExistente.length != 0) {
-                return res.status(403).json({ error: 'Usuário já existente com este e-mail'})
-            } else {
-                const senhaHash = await bcrypt.hash(senha, 10);
+            const endereco = { cep, logradouro, bairro, numero, complemento, cidade, estado }
 
-                const user = await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo}).returning('id')
-                await con('endereco').insert({id_usuario: user[0].id,  cep, numero, complemento, cidade, estado})
+            const usuarioExistente = await usuarioDAO.obterUmPeloEmail(email)
 
-                if(tipo === 'Paciente'){
-                    await con('paciente').insert({id_usuario: user[0].id, peso, altura, alergia, doenca_cronica: doenca, vicio, medicamento})
-                }else if(tipo === 'Medico'){
-                    await con('medico').insert({id_usuario: user[0].id, crm})
-                }
-
-                return res.status(201).json({msg: 'Usuário cadastrado com sucesso!'})
+            if (usuarioExistente) {
+                return res.status(403).json({ error: 'Usuário já existente com este e-mail' })
             }
-        } catch (error) {
-            next(error)
-        }
-    },
-    read: async (req, res, next) => {
-        try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
 
-            if (!id) {
-                throw new Error('Id não identificado')
+            if (usuarioExistente.tipo === 'Admin') {
+                return res.status(401).json({ error: 'Não autorizado para criar usuários do tipo Admin' })
             }
-            const [results] = await con('usuario')
-                .where({ id: id })
-                .select('usuario.nome',
-                        'usuario.genero',
-                        'usuario.telefone',
-                        'usuario.email',
-                        'usuario.senha')
-                .limit(1)
-
-            return res.json(results)
-
-        } catch (error) {
-            next(error)
-        }
-    },
-    update: async (req, res, next) => {
-        try {
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
             
-            const { data } = req.body
-            if(data.senha){
-                const senhaHash = await bcrypt.hash(data.senha, 10);
-                data.senha = senhaHash
+            const senhaHash = await bcrypt.hash(senha, 10)
+            const usuario = new Usuario({ nome, dt_nascimento, genero, telefone, endereco, email, senha: senhaHash, tipo })
+
+            await usuarioDAO.cadastrar(usuario)
+
+            return res.status(201).json({ msg: 'Usuário cadastrado com sucesso!' })
+        } catch(error) {
+            next(error)
+        }
+    },
+    obter: async (req, res, next) => {
+        try {
+            const { id } = req.usuario
+            
+            const usuario = await usuarioDAO.obterUmPeloId(id)
+            
+            if (!usuario) {
+                return res.status(404).json({ error: 'Usuário não existente'})
             }
 
-            await con('usuario').update(data).where({ id })
-            return res.send()
+            return res.json(usuario)
+        } catch(error) {
+            next(error)
+        }
+    },
+    obterPeloAdmin: async (req, res, next) => {
+        try {
+
+            const { id } = req.params
+            
+            const usuario = await usuarioDAO.obterUmPeloId(id)
+            
+            if (!usuario) {
+                return res.status(404).json({ error: 'Usuário não existente'})
+            }
+
+            return res.json(usuario)
+        } catch(error) {
+            next(error)
+        }
+    },
+    obterUmPeloEmail: async (req, res, next) => {
+        try {
+            const { email } = req.params
+            
+            const usuario = await usuarioDAO.obterUmPeloEmail(email)
+            
+            if (!usuario) {
+                return res.status(404).json({ error: 'Usuário não existente'})
+            }
+
+            return res.json(usuario)
+        } catch(error) {
+            next(error)
+        }
+    },
+    atualizar: async (req, res, next) => {
+        try {
+            const { id, tipo } = req.usuario
+            
+            const {
+                id_usuario_admin,
+                nome,
+                dt_nascimento,
+                genero,
+                telefone,
+                email,
+                senha,
+            } = req.body
+
+            let id_usuario = ''
+
+            if (tipo === 'Admin') {
+                id_usuario = id_usuario_admin
+            } else {
+                id_usuario = id
+            }
+ 
+            if (senha) {
+                const senhaHash = await bcrypt.hash(data.senha, 10)
+                senha = senhaHash
+            }
+
+            const usuarioExistente = await usuarioDAO.obterUmPeloId(id_usuario)
+
+            if (!usuarioExistente) {
+                return res.status(404).json({ error: 'Usuário não existente.' })
+            }
+
+            await usuarioDAO.atualizar({
+                id: id_usuario,   
+                nome,
+                dt_nascimento,
+                genero,
+                telefone,
+                email,
+                senha
+            })
+
+            return res.status(200).json({ msg: 'Usuário atualizado com sucesso!' })
+        } catch(error) {
+            next(error)
+        }
+    },
+    atualizarEndereco: async (req, res, next) => {
+        try {
+            const { id, tipo } = req.usuario
+
+            const {
+                id_usuario_admin,
+                cep,
+                logradouro,
+                numero,
+                bairro,
+                complemento,
+                cidade,
+                estado
+            } = req.body
+
+            let id_usuario
+
+            if (tipo === 'Admin') {
+                id_usuario = id_usuario_admin
+            } else {
+                id_usuario = id
+            }
+
+            const usuarioExistente = await usuarioDAO.obterUmPeloId(id_usuario)
+
+            if (!usuarioExistente) {
+                return res.status(404).json({ error: 'Usuário não existente.' })
+            }
+
+            await usuarioDAO.atualizarEndereco({
+                id: id_usuario,
+                cep,
+                logradouro,
+                numero,
+                bairro,
+                complemento,
+                cidade,
+                estado
+            })
+
+            return res.status(200).json({ msg: 'Endereço do usuário atualizado com sucesso!' })
         } catch (error) {
             next(error)
         }
     },
-    delete: async (req, res, next) => {
+    deletar: async (req, res, next) => {
         try {
             const { id } = req.params
+            
+            const usuarioExistente = await usuarioDAO.obterUmPeloId(id)
 
-            await con('usuario')
-            .where({ id })
-            .del()
-
-            return res.send()
-        } catch (error) {
-            next(error)
-        }
-    },
-    disable: async (req, res, next) => {
-        try{
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
-
-            const now = new Date()
-            await con('usuario').update({desativado_em: now}).where({id})
-            return res.status(200).json()        
-        }catch (error) {
-            next(error)
-        }
-    },
-    forgot_password: async(req, res, next) => {
-        try{
-            const { nome, email } = req.body
-
-            const usuario = await con('usuario').where({email})
-            if(!usuario){
-                return res.status(400).send({error: 'Usuário não encontrado!'})
+            if (!usuarioExistente) {
+                return res.status(404).json({ error: 'Usuário não existente.' })
             }
 
-            const token = crypto.randomBytes(20).toString('hex')
-            const now = new Date()
-            now.setHours(now.getHours() + 1)
+            await usuarioDAO.deletar(id)
 
-            await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
-
-            require('../modules/mailer')(email, nome, token)
-
-            return res.status(200).send({token, email})
-        } catch (error) {
+            return res.status(200).json({ msg: 'Usuário deletado com sucesso.' })
+        } catch(error) {
             next(error)
         }
     },
-    reset_passowrd: async(req, res, next) => {
+    desativar: async (req, res, next) => {
         try {
-            const { token } = req.params
-            const { email, senha } = req.body
-            console.log(token)
-            console.log(senha)
-            const [usuario] = await con('usuario').where({resetToken: token})
+            const { id } = req.usuario
 
-            if(!usuario || token !== usuario.resetToken){
-                return res.status(400).send({error: 'Token inválido!'})
-            }
-            const now = new Date()
+            const usuarioExistente = await usuarioDAO.obterUmPeloId(id)
 
-            if(now > usuario.resetTokenExpires){
-                return res.status(400).send({error: 'Token expirou, gere um novo!'})
+            if (!usuarioExistente) {
+                return res.status(404).json({ error: 'Usuário não existente.' })
             }
 
-            const senhaHash = await bcrypt.hash(senha, 10);
+            await usuarioDAO.desativar(id)
 
-            await con('usuario').update({senha: senhaHash}).where({id: usuario.id})
-            
-            return res.status(200).send()
+            return res.status(200).json({ msg: 'Usuário desativado com sucesso.' })        
+        } catch(error) {
+            next(error)
+        }
+    },
+    esqueceu_senha: async(req, res, next) => {
+        try{
+            const { email } = req.body
+            const usuario = await usuarioDAO.obterUmPeloEmail(email)
 
+            if(!usuario){
+                return res.status(404).send({error: 'Usuário não encontrado!'})
+            }
+
+            const token = jwt.sign({
+                email: usuario.email,
+            }, authConfig, { expiresIn: 3600 })
+
+            await sendResetPasswordEmail(email, usuario.nome, token)
+
+            return res.status(200).send({ msg: "Verifique seu E-mail para redefinição de senha." })
         } catch (error) {
             next(error)
         }
     },
-    getEmail: async (req, res, next) => {
-        try{
-            const { token } = req.params
-            const [email] = await con('usuario').select('email','nome').where({ resetToken: token })
+    redefinir_senha: async(req, res, next) => {
+        try {
+            const { senha, token } = req.body
 
-            return res.status(200).json(email)
+            if (!token) {
+                return res.status(401).json({ error: 'Token não informado'})
+              }
+              
+              jwt.verify(token, authConfig, async function (err, decoded) {
+                  if (err) {
+                      return res.status(403).json({ error: 'Acesso negado' })
+                    }
+                    const { email } = decoded
+                    const senhaHash = await bcrypt.hash(senha, 10);
+                    await usuarioDAO.atualizarSenhaPeloEmail(senhaHash, email)
+                return res.status(200).json({ msg: "Senha atualizada com sucesso." })
+            })
         } catch (error) {
             next(error)
         }
     },
-    getUserByEmail: async (req, res, next) => {
-        try{
-            const {email} = req.params
-            const [result] = await con('usuario').where({email})
-            return res.status(200).json(result)
-        }catch(error){  
-            next(error)
-        }
-    },
-    getType: async (req, res, next) => {
-        try{
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
+    obterUsuarios: async (req, res, next) => {
+        try {
+            //const { id, page = 1 } = req.query
+            const usuarios = await usuarioDAO.obterTodosUsuarios()
 
-            const [tipo] = await con('usuario').select('tipo').where({ id: decode.id })
+            //const countObj = con('usuario').count()
 
-            return res.status(200).json(tipo)
+            //const [count] = await countObj
+            //res.header('X-Total-Count', count["count"])
+
+            return res.status(200).json(usuarios)
+
         } catch (error) {
-            next(error)
-        }
-    },
-    getEndereco: async (req, res, next) => {
-        try{
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
-
-            const [result] = await con('endereco').where({id_usuario: id})
-            
-            return res.status(200).json(result)
-        } catch (error) {
-            next(error)
-        }
-    },
-    updateEndereco: async (req, res, next) => {
-        try{
-            const authHeader = req.headers.authorization
-            const decode = jwt_decode(authHeader)
-            const id = decode.id
-
-            const {cep, numero, complemento, cidade, estado} = req.body
-
-            await con('endereco').update({cep, numero, complemento, cidade, estado}).where({id_usuario: id})
-            return res.status(200).json()
-        }catch (error) {
             next(error)
         }
     }

@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
-const authConfig = require('../config/auth');
+const authConfig = process.env.SECRET_API
 const con = require('../database')
 
 module.exports = {
@@ -14,7 +14,11 @@ module.exports = {
                 return res.status(403).json({ error: 'Usuário não encontrado' })
             } else {
                 const match = await bcrypt.compare(senha, usuario.senha)
-                const accessToken = jwt.sign({id: usuario.id}, authConfig.secret, {expiresIn: 86400,})
+                const accessToken = jwt.sign({
+                    id: usuario.id,
+                    nome: usuario.nome,
+                    tipo: usuario.tipo
+                }, authConfig, {expiresIn: 3600,})
 
                 if (match) {
                     if(usuario.desativado_em != null){
@@ -32,6 +36,5 @@ module.exports = {
         } catch (error) {
             next(error)
         }
-    },
-    
+    }  
 }
