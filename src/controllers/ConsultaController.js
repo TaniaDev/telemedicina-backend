@@ -462,6 +462,14 @@ module.exports = {
             await con('consulta').update({status: "Não Realizada"}).where({id: result.id})
         })
         return
+    },
+    done: async (req, res, next) => {
+        try{
+            await con('consulta').update({status: "Realizada"}).where({id: req.params.id})
+            return res.status(200).json()
+        }catch(error){
+            next(error)
+        }
     }
 
 

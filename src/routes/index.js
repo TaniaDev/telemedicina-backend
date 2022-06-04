@@ -90,6 +90,7 @@ routes
     .get('/consultas/getMyAppointments/canceled', ConsultaController.getCanceledLateAppointments)
     .delete('/admin/consultas/deletar/:id', auth, ConsultaController.delete)
     .get('/consulta/:id', auth, ConsultaController.getAppointment)
+    .put('/consulta/done/:id', auth, ConsultaController.done)
 
     //Prontuario
     .get('/prontuario/:id_paciente', auth, doctor, ProntuarioController.getProntuario) 
