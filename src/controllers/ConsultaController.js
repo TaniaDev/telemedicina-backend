@@ -2,6 +2,7 @@ const bcrypt = require('bcryptjs')
 const jwt_decode = require('jwt-decode')
 const con = require('../database')
 const {endOfDay, startOfWeek, endOfWeek, sub} = require('date-fns')
+const dayjs = require('dayjs')
 
 module.exports = {
     agendarconsulta: async (req, res, next) => {
@@ -454,13 +455,13 @@ module.exports = {
 
     },
     lateAppointments: async (req, res, next) => {
-        let current = new Date();
-        const results = await con('consulta').where({status: 'Agendado'}).andWhere('dt_hr_consulta', '<', current)
+        let oneLessHour = dayjs().subtract(1, 'hour').format('YYYY-MM-DD HH:mm:00')
+
+        const results = await con('consulta').where({status: 'Agendado'}).andWhere('dt_hr_consulta', '<', oneLessHour)
         results.map(async (result) => {
             await con('consulta').update({status: "Não Realizada"}).where({id: result.id})
         })
-        
-        return 
+        return
     }
 
 
