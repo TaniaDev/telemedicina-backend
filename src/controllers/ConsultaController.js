@@ -34,6 +34,7 @@ module.exports = {
         try{
             const {id_medico, data} = req.params
 
+            // Pegando horas ocupadas / com consultas agendadas
             const consultas = await con('consulta').where({id_medico, data, status: 'Agendado'})
             let horasDisponiveis = []
             let horasOcupadas = []
@@ -43,6 +44,7 @@ module.exports = {
                 horasOcupadas.push(consulta.hora)
             })
 
+            // Pegando todos os registros de horas do médico
             const result = await con('disponibilidade_medica').select('horas', 'dia_da_semana.dia')
                                 .join('dia_da_semana', 'dia_da_semana.id', '=', 'disponibilidade_medica.id_dia_semana')
                                 .where({id_medico})
@@ -52,6 +54,7 @@ module.exports = {
                 horasDisponiveis.push(aux)
             })
 
+            // Descontando as horas ocupadas
             horasDisponiveis = horasDisponiveis.filter(item => !horasOcupadas.includes(item))
 
             var hrJson = {"horas": horasDisponiveis, "dia_semana": result[0].dia_semana}            
@@ -286,7 +289,7 @@ module.exports = {
                                     .join('usuario', 'usuario.id', '=', 'consulta.id_medico') 
                                     .join('especialidade', 'especialidade.id', '=', 'consulta.id_especialidade') 
                                     .where({ 'consulta.id_paciente': id_paciente })
-                                    .orderBy('consulta.dt_hr_consulta')
+                                    .orderBy('consulta.dt_hr_consulta', 'desc')
     
             return res.status(200).json(appointments)
         }catch (error) {
@@ -303,7 +306,7 @@ module.exports = {
                                     .join('usuario', 'usuario.id', '=', 'consulta.id_paciente') 
                                     .join('especialidade', 'especialidade.id', '=', 'consulta.id_especialidade') 
                                     .where({ 'consulta.id_medico': id_medico })
-                                    .orderBy('consulta.dt_hr_consulta')
+                                    .orderBy('consulta.dt_hr_consulta', 'desc')
     
             return res.status(200).json(appointments)
         }catch (error) {
@@ -450,6 +453,15 @@ module.exports = {
         }
 
     },
+    lateAppointments: async (req, res, next) => {
+        let current = new Date();
+        const results = await con('consulta').where({status: 'Agendado'}).andWhere('dt_hr_consulta', '<', current)
+        results.map(async (result) => {
+            await con('consulta').update({status: "Não Realizada"}).where({id: result.id})
+        })
+        
+        return 
+    }
 
 
 }
