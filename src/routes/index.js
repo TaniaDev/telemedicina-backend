@@ -13,6 +13,7 @@ const auth = require('../middlewares/auth')
 const patient = require('../middlewares/patient')
 const doctor = require('../middlewares/doctor')
 const admin = require('../middlewares/admin')
+const verifyAppointments = require('../middlewares/verifyAppointments')
 
 routes
     //Sessão
@@ -71,7 +72,7 @@ routes
 
     //Consulta
     .put('/consulta/agendar/:id_consulta', auth, ConsultaController.agendar) 
-    .post('/agendarconsulta', auth, ConsultaController.agendarconsulta) 
+    .post('/agendarconsulta', auth, verifyAppointments, ConsultaController.agendarconsulta) 
     .get('/horasdisponiveismedico/:id_medico/:data', auth, ConsultaController.horasdisponiveismedico) 
     .get('/getDiasDaSemana', auth, ConsultaController.getDiasDaSemana) 
     .post('/definirDisponibilidadeMedica', auth, doctor, ConsultaController.definirDisponibilidadeMedica) 

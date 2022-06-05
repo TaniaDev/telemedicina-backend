@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs')
 const jwt_decode = require('jwt-decode')
 const con = require('../database')
-const {endOfDay, startOfWeek, endOfWeek, sub} = require('date-fns')
+const {startOfDay, endOfDay, startOfWeek, endOfWeek, sub} = require('date-fns')
 const dayjs = require('dayjs')
 
 module.exports = {
@@ -11,7 +11,7 @@ module.exports = {
             const decode = jwt_decode(authHeader)
             const id_paciente = decode.id
 
-            const { id_medico, id_especialidade, data, hora, dt_hr_consulta, url_consulta } = req.body
+            const { id_medico, id_especialidade, dt_hr_consulta, url_consulta } = req.body
 
             const now = new Date()
             const result = await con('consulta').insert({
@@ -20,8 +20,6 @@ module.exports = {
                                                             status: 'Agendado',  
                                                             criado_em: now, 
                                                             id_especialidade, 
-                                                            data, 
-                                                            hora,
                                                             dt_hr_consulta,
                                                             url_consulta
                                                         })
@@ -34,33 +32,41 @@ module.exports = {
     horasdisponiveismedico: async(req, res, next) => {
         try{
             const {id_medico, data} = req.params
+            let day_of_week = dayjs(data).day()
 
             // Pegando horas ocupadas / com consultas agendadas
-            const consultas = await con('consulta').where({id_medico, data, status: 'Agendado'})
+            const consultas = await con('consulta')
+                                                .where({id_medico, status: 'Agendado'})
+                                                .andWhere('dt_hr_consulta', '>=', `${data}T00:00:00`)
+                                                .andWhere('dt_hr_consulta', '<=', `${data}T23:59:59`);
+            
             let horasDisponiveis = []
             let horasOcupadas = []
             let aux = ''
 
             consultas.forEach(consulta => {
-                horasOcupadas.push(consulta.hora)
+                horasOcupadas.push(dayjs(consulta.dt_hr_consulta).format('HH'))
             })
 
             // Pegando todos os registros de horas do médico
-            const result = await con('disponibilidade_medica').select('horas', 'dia_da_semana.dia')
+            const result = await con('disponibilidade_medica').select('disponibilidade_medica.horas')
                                 .join('dia_da_semana', 'dia_da_semana.id', '=', 'disponibilidade_medica.id_dia_semana')
                                 .where({id_medico})
-
+                                .andWhere({dia: day_of_week})
+                           
             result.forEach(item => {
-                aux = `${item.horas}:00:00`
+                aux = item.horas
                 horasDisponiveis.push(aux)
             })
 
             // Descontando as horas ocupadas
             horasDisponiveis = horasDisponiveis.filter(item => !horasOcupadas.includes(item))
+            console.log('hr disp')
+            console.log(horasDisponiveis)
 
-            var hrJson = {"horas": horasDisponiveis, "dia_semana": result[0].dia_semana}            
+            var hrJson = {"horas": horasDisponiveis}            
 
-            return res.status(200).json(hrJson)
+            return res.status(200).json(horasDisponiveis)
         }catch (error) {
             next(error)
         }
