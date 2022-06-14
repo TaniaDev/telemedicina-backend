@@ -275,9 +275,17 @@ module.exports = {
 
             let appointments
             if(verify == ''){
-                appointments = await con('consulta').where({ id_paciente: id }).andWhere('dt_hr_consulta', '>', limit).andWhere('status', 'Agendado')
+                appointments = await con('consulta')
+                                        .join('especialidade', 'especialidade.id', '=', 'consulta.id_especialidade') 
+                                        .where({ id_paciente: id })
+                                        .andWhere('dt_hr_consulta', '>', limit)
+                                        .andWhere('status', 'Agendado')
             }else{
-                appointments = await con('consulta').where({ id_medico: id }).andWhere('dt_hr_consulta', '>', limit).andWhere('status', 'Agendado')
+                appointments = await con('consulta')
+                                        .join('especialidade', 'especialidade.id', '=', 'consulta.id_especialidade')
+                                        .where({ id_medico: id })
+                                        .andWhere('dt_hr_consulta', '>', limit)
+                                        .andWhere('status', 'Agendado')
             }
             
             appointments.dt_hr_consulta = "2000-05-02T23:10:00.000Z"
@@ -464,7 +472,9 @@ module.exports = {
     lateAppointments: async (req, res, next) => {
         let oneLessHour = dayjs().subtract(1, 'hour').format('YYYY-MM-DD HH:mm:00')
 
-        const results = await con('consulta').where({status: 'Agendado'}).andWhere('dt_hr_consulta', '<', oneLessHour)
+        const results = await con('consulta').where({status: 'Agendado'}).andWhere('dt_hr_consulta', '<=', oneLessHour)
+        console.log(results)
+
         results.map(async (result) => {
             await con('consulta').update({status: "Não Realizada"}).where({id: result.id})
         })
