@@ -53,7 +53,8 @@ module.exports = {
                                 .join('dia_da_semana', 'dia_da_semana.id', '=', 'disponibilidade_medica.id_dia_semana')
                                 .where({id_medico})
                                 .andWhere({dia: day_of_week})
-                           
+                                .orderBy('disponibilidade_medica.horas')
+
             result.forEach(item => {
                 aux = item.horas
                 horasDisponiveis.push(aux)
@@ -61,8 +62,8 @@ module.exports = {
 
             // Descontando as horas ocupadas
             horasDisponiveis = horasDisponiveis.filter(item => !horasOcupadas.includes(item))
-            console.log('hr disp')
-            console.log(horasDisponiveis)
+            // console.log('hr disp')
+            // console.log(horasDisponiveis)
 
             var hrJson = {"horas": horasDisponiveis}            
 
