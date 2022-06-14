@@ -62,8 +62,6 @@ module.exports = {
 
             // Descontando as horas ocupadas
             horasDisponiveis = horasDisponiveis.filter(item => !horasOcupadas.includes(item))
-            // console.log('hr disp')
-            // console.log(horasDisponiveis)
 
             var hrJson = {"horas": horasDisponiveis}            
 
@@ -276,12 +274,14 @@ module.exports = {
             let appointments
             if(verify == ''){
                 appointments = await con('consulta')
+                                        .select('consulta.*', 'especialidade.nome')
                                         .join('especialidade', 'especialidade.id', '=', 'consulta.id_especialidade') 
                                         .where({ id_paciente: id })
                                         .andWhere('dt_hr_consulta', '>', limit)
                                         .andWhere('status', 'Agendado')
             }else{
                 appointments = await con('consulta')
+                                        .select('consulta.*', 'especialidade.nome')
                                         .join('especialidade', 'especialidade.id', '=', 'consulta.id_especialidade')
                                         .where({ id_medico: id })
                                         .andWhere('dt_hr_consulta', '>', limit)
@@ -473,7 +473,6 @@ module.exports = {
         let oneLessHour = dayjs().subtract(1, 'hour').format('YYYY-MM-DD HH:mm:00')
 
         const results = await con('consulta').where({status: 'Agendado'}).andWhere('dt_hr_consulta', '<=', oneLessHour)
-        console.log(results)
 
         results.map(async (result) => {
             await con('consulta').update({status: "Não Realizada"}).where({id: result.id})
