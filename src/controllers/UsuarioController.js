@@ -29,6 +29,25 @@ module.exports = {
             next(error)
         }
     },
+    createUser: async (req, res, next) => {
+        try {
+            const { nome, dt_nascimento, genero, telefone, email, senha, tipo, aguardando_validacao } = req.body
+            
+            const emailExistente = await con('usuario').where({ email }).select('usuario.email')
+
+            if (emailExistente.length != 0) {
+                return res.status(403).json({ error: 'Usuário já existente com este e-mail'})
+            } else {
+                const senhaHash = await bcrypt.hash(senha, 10);
+
+                const [user] = await con('usuario').insert({nome, dt_nascimento, genero, telefone, email, senha: senhaHash, tipo, aguardando_validacao}).returning('id')
+                let id = user.id
+                return res.status(201).json({id})
+            }
+        } catch (error) {
+            next(error)
+        }
+    },
     read: async (req, res, next) => {
         try {
             const authHeader = req.headers.authorization
@@ -71,6 +90,20 @@ module.exports = {
             next(error)
         }
     },
+    updateDadosPessoais: async (req, res, next) => {
+        try {
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+            
+            const { nome, genero, telefone, email } = req.body
+            
+            await con('usuario').update({nome, genero, telefone, email}).where({ id })
+            return res.send()
+        } catch (error) {
+            next(error)
+        }
+    },
     delete: async (req, res, next) => {
         try {
             const { id } = req.params
@@ -100,8 +133,8 @@ module.exports = {
     forgot_password: async(req, res, next) => {
         try{
             const { nome, email } = req.body
-
-            const usuario = await con('usuario').where({email})
+            
+            const [usuario] = await con('usuario').where({email})
             if(!usuario){
                 return res.status(400).send({error: 'Usuário não encontrado!'})
             }
@@ -112,7 +145,7 @@ module.exports = {
 
             await con('usuario').update({resetToken: token, resetTokenExpires: now}).where({email})
 
-            require('../modules/mailer')(email, nome, token)
+            require('../modules/mailer')(email, usuario.nome, token)
 
             return res.status(200).send({token, email})
         } catch (error) {
@@ -123,8 +156,7 @@ module.exports = {
         try {
             const { token } = req.params
             const { email, senha } = req.body
-            console.log(token)
-            console.log(senha)
+
             const [usuario] = await con('usuario').where({resetToken: token})
 
             if(!usuario || token !== usuario.resetToken){
@@ -165,6 +197,18 @@ module.exports = {
             next(error)
         }
     },
+    getUserById: async (req, res, next) => {
+        try{
+            const authHeader = req.headers.authorization
+            const decode = jwt_decode(authHeader)
+            const id = decode.id
+
+            const [result] = await con('usuario').where({id})
+            return res.status(200).json(result)
+        }catch(error){  
+            next(error)
+        }
+    },
     getType: async (req, res, next) => {
         try{
             const authHeader = req.headers.authorization
@@ -173,6 +217,23 @@ module.exports = {
             const [tipo] = await con('usuario').select('tipo').where({ id: decode.id })
 
             return res.status(200).json(tipo)
+        } catch (error) {
+            next(error)
+        }
+    },
+    createEndereco: async (req, res, next) => {
+        try{
+            const {id_usuario, cep, logradouro, numero, complemento, cidade, estado} = req.body
+            
+            const userExists = await con('usuario').where({ id: id_usuario })
+
+            if (userExists.length < 1) {
+                return res.status(403).json({ error: 'Usuário não encontrado!'})
+            }
+
+            await con('endereco').insert({id_usuario, cep, logradouro, numero, complemento, cidade, estado})
+            
+            return res.status(200).json({})
         } catch (error) {
             next(error)
         }
@@ -195,7 +256,6 @@ module.exports = {
             const authHeader = req.headers.authorization
             const decode = jwt_decode(authHeader)
             const id = decode.id
-
             const {cep, numero, complemento, cidade, estado} = req.body
 
             await con('endereco').update({cep, numero, complemento, cidade, estado}).where({id_usuario: id})
