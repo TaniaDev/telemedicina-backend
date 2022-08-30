@@ -2,25 +2,11 @@
 
 <p align="center">A plataforma web para Telemedicina tem como objetivo democratizar o acesso a saúde pública de maneira acessível e simplificada, utilizando chamadas de vídeo para consultas médicas a distância.</p>
 
-<p align="center">
- <a href="#features">Features</a> •
- <a href="#demonstrativo">Demonstrativo</a> • 
+<p align="center"> 
   <a href="#comoRodar">Como rodar a aplicação</a> • 
  <a href="#tecnologias">Tecnologias</a> • 
  <a href="#contribuicao">Contribuição</a> 
 </p>
-
-<br/><h4 align="center" id="features"> 
-	🚧  Em construção...  🚧
-</h4>
-
-- [x] Cadastro de paciente
-- [x] Cadastro de médico
-- [ ] ** Listar todas as funcionalidade do sistema **
-
-<br/><h4 align="center" id="demonstrativo">👀 Demonstrativo da Aplicação</h4>
-
-<p>** Inserir prints ou gifs**</p>
 
 <br/><h4 align="center" id="comoRodar">📋 Pré-requisitos e como rodar a aplicação</h4>
 
